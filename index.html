@@ -125,6 +125,7 @@
         this.gf = new GF();
         await this.gf.getFamilyData();
         await this.gf.getLintRules();
+        await this.gf.getTagDefinitions();
         this.gf.loadFamilies();
         this.gf.linter = linter;
         this.tags = new Tags(this.gf);

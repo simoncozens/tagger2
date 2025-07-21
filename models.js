@@ -53,6 +53,23 @@ export class FontTagGroup {
     }
 }
 
+export class TagDefinition {
+    constructor(name, description, superShortDescription, related) {
+        this.name = name;
+        this.description = description;
+        this.superShortDescription = superShortDescription;
+        this.related = related; // Array of related tag names
+    }
+    get exemplars() {
+        return this.related.map(tag => {
+            return {
+                name: tag,
+                url: `https://fonts.google.com/specimen/${tag.replaceAll(" ", "+")}`
+            };
+        });
+    }
+}
+
 export class Font {
     constructor(name, axes) {
         this.name = name;
@@ -100,6 +117,7 @@ export class GF {
     constructor() {
         this.familyData = {}; 
         this.families = [];
+        this.tagDefinitions = {};
         this.lintRules = [];
     }
     async getFamilyData() {
@@ -135,6 +153,20 @@ export class GF {
             });
         }
     }
+    async getTagDefinitions() {
+        let data = await loadText('tag_definitions.json');
+        this.tagDefinitions = JSON.parse(data);
+        for (let tagName in this.tagDefinitions) {
+            const tagDef = this.tagDefinitions[tagName];
+            this.tagDefinitions[tagName] = new TagDefinition(
+                tagName,
+                tagDef.description,
+                tagDef.superShortDescription,
+                tagDef.related || []
+            );
+        }
+    }
+
     loadFamilies() {
         for (let familyName in this.familyData) {
             const axes = []

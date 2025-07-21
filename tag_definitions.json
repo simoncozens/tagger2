@@ -1,0 +1,42 @@
+{
+    "/Expressive/Business": {
+        "description": "<p>Would you expect to read a letter or business report written in this font?</p><p>This does not include the use of the font for business branding purposes.</p>",
+        "superShortDescription": "Suitable for business use",
+        "related": ["/Expressive/Competent", "/Expressive/Calm", "/Expressive/Stiff"]
+    },
+    "/Expressive/Calm": {
+        "description": "<p>A calm and soothing font, perfect for relaxation.</p><p>Some more filler copy here.</p>",
+        "superShortDescription": "Calm and soothing",
+        "related": ["/Expressive/Competent"]
+    },
+    "/Expressive/Competent": {
+        "description": "<p>A font which engenders confidence in the competence of the user.</p><p>See Julie Janet's ATypI talk for inspiration.</p>",
+        "superShortDescription": "Exudes competence",
+        "related": ["/Expressive/Calm", "/Expressive/Business"]
+    },
+    "/Expressive/Stiff": {
+        "description": "<p>A font which is stiff and formal, but not necessarily bad.</p><p>Some more filler copy here.</p>",
+        "superShortDescription": "Stiff and formal",
+        "related": ["/Expressive/Business"]
+    },
+    "/Quality/Wordspace": {
+        "description": "<p>Evaluates how well designed the spaces are between words.</p><p>Some more filler copy here.</p>",
+        "superShortDescription": "Good word spacing?",
+        "related": ["/Quality/Drawing", "/Quality/Spacing"]
+    },
+    "/Quality/Spacing": {
+        "description": "<p>Evaluates how well designed the spaces are between letters.</p><p>Some more filler copy here.</p>",
+        "superShortDescription": "Good letter spacing?",
+        "related": ["/Quality/Drawing", "/Quality/Wordspace"]
+    },
+    "/Quality/Drawing": {
+        "description": "<p>Evaluates how well drawn the letter-forms are.</p><p>Some more filler copy here.</p>",
+        "superShortDescription": "Well-structured text?",
+        "related": ["/Quality/Wordspace"]
+    },
+    "/Sans/Neogrotesque": {
+        "description": "<p>A sans-serif typeface with a neo-grotesque style, characterized by its clean and modern appearance.</p><p>Some more filler copy here.</p>",
+        "superShortDescription": "Modern sans-serif",
+        "related": ["/Sans/Geometric", "/Sans/Transitional"]
+    }
+}
