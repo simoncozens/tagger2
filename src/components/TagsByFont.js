@@ -6,18 +6,29 @@ export default {
       return this.tags.filter(tag => tag.family && tag.family.name === this.font);
     },
     similarFamilies() {
-      return this.$root.gf.similarFamilies(this.font, 10);
+      console.log("parent", this.$parent);
+      console.log("Root", this.$root);
+      console.log("GF", this.$root.gf);
+      if (!this.$root.gf) {
+        console.warn("GF not found in root");
+        return [];
+      }
+      return this.$root.gf.similarFamilies(this.font, 10) || [];
     },
     lintErrors() {
-      return this.$root.gf.linter(this.$root.gf.lintRules, this.font, this.filteredTags);
+      if (!this.$parent.gf || !this.$parent.gf.linter) {
+        console.warn("GF linter not found in parent");
+        return [];
+      }
+      return this.$parent.gf.linter(this.$parent.gf.lintRules, this.font, this.filteredTags) || [];
     }
   },
   methods: {
     removeTag(tag) {
-      this.$root.$emit('remove-tag', tag);
+      this.$parent.$emit('remove-tag', tag);
     },
     addFontPanel(font) {
-      this.$root.panels.push({ type: 'font', font });
+      this.$parent.panels.push({ type: 'font', font });
     }
   },
   template: `

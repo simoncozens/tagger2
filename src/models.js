@@ -1,3 +1,5 @@
+import { linter }   from "./linter.js";
+
 async function loadText(path) {
     if (typeof window !== 'undefined' && window.fetch) {
         // Browser environment
@@ -119,6 +121,7 @@ export class GF {
         this.families = [];
         this.tagDefinitions = {};
         this.lintRules = [];
+        this.linter = linter;
     }
     async getFamilyData() {
         let data = await loadText('family_data.json');
@@ -187,7 +190,7 @@ export class GF {
     similarFamilies(name, count = 10) {
         const family = this.familyData[name];
         if (!family || !family.style) {
-            console.warn(`Family not found: ${name}`);
+            console.warn(`Family not found (in similar): ${name}`);
             return [];
         }
         let distances = Object.values(this.familyData).filter(
@@ -240,7 +243,7 @@ export class Tags {
                 }
                 const family = this.gf.family(familyName);
                 if (family === undefined || family.name === undefined) {
-                    console.warn("Family not found:", familyName);
+                    // console.warn("Family not found (loading tags):", familyName);
                     continue;
                 }
                 const tag = new FontTag(tagName, family, [], score);

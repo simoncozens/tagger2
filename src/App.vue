@@ -1,7 +1,109 @@
+<script language="ts">
+import { GF, Tags, FontTag, FontTagGroup } from './models.js';
+
+export default {
+  data: () => ({
+    gf: null,
+    tags: null,
+    tagGroups: [],
+    panels: [
+      { type: 'font', font: 'Roboto' },
+      { type: 'categories', categories: ['/Expressive/Loud', '/Expressive/Childlike'] }
+    ],
+  }),
+  computed: {
+    categories() {
+      return this.tags ? this.tags.categories : [];
+    }
+  },
+  methods: {
+    addTag(tag) {
+      const family = this.gf.families.find(f => f.name === tag.family);
+      tag.family = family
+
+      this.tags.items.push(tag);
+    },
+    addTags(filterSet) {
+      for (let family of this.gf.families) {
+        let addFamily = false;
+        for (let axis of family.axes) {
+          if (
+            filterSet.lowTag.filters.some(f => f.axis == axis.tag) &&
+            filterSet.highTag.filters.some(f => f.axis == axis.tag) &&
+            filterSet.lowTag.filters.some(f => f.value >= axis.min) &&
+            filterSet.highTag.filters.some(f => f.value <= axis.max)
+          ) {
+            addFamily = true;
+          }
+        }
+        if (addFamily) {
+          for (let category of filterSet.categories) {
+            const lowTag = new FontTag(category, family, [{ tag: "wght", value: 100 }], filterSet.lowTag.score);
+            const highTag = new FontTag(category, family, [{ tag: "wght", value: 900 }], filterSet.highTag.score);
+            const fontTag = new FontTagGroup();
+            fontTag.addTag(lowTag);
+            fontTag.addTag(highTag);
+            this.tagGroups.push(fontTag);
+          }
+        }
+      }
+    },
+    addCategory(category) {
+      console.log("Adding category", category);
+      if (!this.tags.categories.includes(category)) {
+        this.tags.categories.push(category);
+      }
+    },
+    addFontPanel(font) {
+      this.panels.push({ type: 'font', font });
+    },
+    addCategoriesPanel(categories) {
+      this.panels.push({ type: 'categories', categories, tagGroups: this.tagGroups });
+    },
+    addVFViewPanel() {
+      this.panels.push({ type: 'vf-view', families: this.gf.families });
+    },
+    removePanel(idx) {
+      this.panels.splice(idx, 1);
+    },
+    removeTag(tag) {
+      const index = this.tags.items.indexOf(tag)
+      if (index !== -1) {
+        this.tags.items.splice(index, 1);
+      }
+    },
+  },
+  async created() {
+    // Load the GF and Tags classes
+    console.log("Before create hook", this)
+    this.gf = new GF();
+
+    await this.gf.getFamilyData();
+    await this.gf.getLintRules();
+    await this.gf.getTagDefinitions();
+    this.gf.loadFamilies();
+    this.tags = new Tags(this.gf);
+    this.tags.sortCategories();
+
+    // Subscribe to events
+    this.$root.$on("remove-tag", this.removeTag);
+    const family = this.gf.families.find(f => f.name === 'Maven Pro');
+    const tag1 = new FontTag('/Purpose/Easy Reading', family, [{ tag: "wght", value: 400 }], 10);
+    const tag2 = new FontTag('/Purpose/Easy Reading', family, [{ tag: "wght", value: 900 }], 100);
+    const tagGroup = new FontTagGroup();
+    tagGroup.addTag(tag1);
+    tagGroup.addTag(tag2);
+    this.tagGroups.push(tagGroup);
+
+    console.log("App created, GF and Tags initialized", this.gf, this.tags);
+  }
+
+}
+</script>
 <template>
   <div id="app">
     <div id="fonts">
-      <link v-for="family in gf && gf.families ? gf.families : []" :href="family.url" rel="stylesheet">
+      <link v-for="family in this.gf && this.gf.families ? this.gf.families : []" :href="family.url" rel="stylesheet">
     </div>
     <button @click="addFontPanel('Maven Pro')">Tags in font</button>
     <button @click="addCategoriesPanel(['/Expressive/Loud'])">Tags in category</button>
@@ -12,14 +114,10 @@
     <add-tags :categories="categories" @tags-added="addTags"></add-tags>
     <add-category @category-added="addCategory"></add-category>
     <div style="display: flex; flex-direction: row; width: 100vw; min-height: 100vh;">
-      <div v-for="(panel, idx) in panels" :key="idx" :style="{ flex: '1 1 0', minWidth: 0, borderRight: idx < panels.length - 1 ? '1px solid #eee' : 'none', height: '100vh', overflow: 'auto' }">
-        <panel
-          :panel="panel"
-          :tags="tags && tags.items ? tags.items : []"
-          @remove="removePanel(idx)"
-        ></panel>
+      <div v-for="(panel, idx) in panels" :key="idx"
+        :style="{ flex: '1 1 0', minWidth: 0, borderRight: idx < panels.length - 1 ? '1px solid #eee' : 'none', height: '100vh', overflow: 'auto' }">
+        <panel :panel="panel" :tags="tags && tags.items ? tags.items : []" @remove="removePanel(idx)"></panel>
       </div>
     </div>
   </div>
 </template>
-
