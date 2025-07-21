@@ -2,6 +2,7 @@
 import { computed, defineProps, getCurrentInstance, ref } from 'vue';
 
 const props = defineProps(['tags', 'font', 'gf']);
+const emit = defineEmits(['remove-tag', 'add-font-panel', 'update:tags']);
 
 const font = ref(props.font); // Input for new category
 
@@ -19,13 +20,13 @@ const lintErrors = computed(() => {
   return props.gf.linter(props.gf.lintRules, font.value, filteredTags.value) || [];
 });
 
-function removeTag(tag) {
-  const instance = getCurrentInstance();
-  instance?.parent.$emit('remove-tag', tag);
+// These are emitted to the panel component; remember to handle them there
+function removeTag(tag: string) {
+  emit('remove-tag', tag);
 }
-function addFontPanel(font) {
-  const instance = getCurrentInstance();
-  instance?.parent.panels.push({ type: 'font', font });
+function addFontPanel(font: string) {
+  console.log("Emitting add-font-panel from TagsByFont for ", font);
+  emit('add-font-panel', font);
 }
 </script>
 <template>
@@ -45,7 +46,7 @@ function addFontPanel(font) {
     <ul>
       <li v-for="tag in filteredTags" :key="tag.tagName + tag.family.name + tag.score">
         <span class="tag-name">{{ tag.tagName }}</span>
-        <input type="number" v-model="tag.score" @change="$emit('update:tags', tags)" />
+        <input type="number" v-model="tag.score" @change="emit('update:tags', tags)" />
         <button @click="removeTag(tag)">Remove</button>
       </li>
     </ul>

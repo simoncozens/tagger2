@@ -73,6 +73,10 @@ export default {
         this.tags.items.splice(index, 1);
       }
     },
+    updateTags(tags) {
+      this.tags = tags;
+      this.tags.sortCategories();
+    }
   },
   async created() {
     // Load the GF and Tags classes
@@ -115,7 +119,8 @@ export default {
     <div style="display: flex; flex-direction: row; width: 100vw; min-height: 100vh;">
       <div v-for="(panel, idx) in panels" :key="idx"
         :style="{ flex: '1 1 0', minWidth: 0, borderRight: idx < panels.length - 1 ? '1px solid #eee' : 'none', height: '100vh', overflow: 'auto' }">
-        <panel :panel="panel" :gf="gf" :tags="tags?.items || []" @remove="removePanel(idx)">
+        <panel :panel="panel" :gf="gf" :tags="tags?.items || []" @remove-panel="removePanel(idx)"
+          @add-font-panel="addFontPanel" @update-tags="updateTags" @remove-tag="removeTag">
         </panel>
       </div>
     </div>
