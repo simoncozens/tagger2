@@ -1,4 +1,4 @@
-import {FontTag} from "./models.js";
+import {FontTag} from "../models.js";
 
 export default {
     props: ["categories"],
