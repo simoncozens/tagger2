@@ -1,6 +1,7 @@
+<script>
 export default {
     props: ['families'],
-    data: function() {
+    data: function () {
         return {
             fontSize: 32,
             selectedFamily: null,
@@ -19,7 +20,9 @@ export default {
             return res.slice(0, -1) + ';'; // Remove trailing comma and add semicolon
         }
     },
-    template: `
+}
+</script>
+<template>
     <div>
         <h1>Playground</h1>
         <select v-model="selectedFamily">
@@ -39,6 +42,4 @@ export default {
             </div>
         </div>
     </div>
-
-    `
-}
+</template>

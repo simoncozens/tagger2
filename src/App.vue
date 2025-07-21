@@ -75,7 +75,6 @@ export default {
   },
   async created() {
     // Load the GF and Tags classes
-    console.log("Before create hook", this)
     this.gf = new GF();
 
     await this.gf.getFamilyData();
@@ -94,8 +93,6 @@ export default {
     tagGroup.addTag(tag1);
     tagGroup.addTag(tag2);
     this.tagGroups.push(tagGroup);
-
-    console.log("App created, GF and Tags initialized", this.gf, this.tags);
   }
 
 }

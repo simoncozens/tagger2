@@ -1,27 +1,36 @@
+<script lang="ts">
+
+type Filter = {
+    axis: string;
+    op: string;
+    value: number;
+    score: number;
+};
+
 export default {
-    
-//    schema: {
-//        categories: ["a", "b", "c"],
-//        lowTag: {
-//            filters: [],
-//            score: 10
-//        },
-//        highTag: {
-//            filters: [],
-//            score: 100
-//        }
-//    },
+
+    //    schema: {
+    //        categories: ["a", "b", "c"],
+    //        lowTag: {
+    //            filters: [],
+    //            score: 10
+    //        },
+    //        highTag: {
+    //            filters: [],
+    //            score: 100
+    //        }
+    //    },
 
     props: ["categories"],
-    data: function() {
+    data: function () {
         return {
             currentCategories: [],
             lowTag: {
-                filters: [],
+                filters: [] as Filter[],
                 score: 0
             },
             highTag: {
-                filters: [],
+                filters: [] as Filter[],
                 score: 0
             },
             currentLowAxis: "",
@@ -81,7 +90,10 @@ export default {
             this.currentHighScore = 0;
         }
     },
-    template: `
+
+}
+</script>
+<template>
     <div class="frame">
         <h3>Add Tags</h3>
         <div>
@@ -135,5 +147,4 @@ export default {
         </div>
         <button @click="addTags">Add Tags</button>
     </div>
-    `
-}
+</template>
