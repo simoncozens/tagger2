@@ -1,38 +1,32 @@
-<script>
-export default {
-  props: ['tags', 'font'],
-  computed: {
-    filteredTags() {
-      // Assumes each tag has a property 'family' with a 'name'
-      return this.tags.filter(tag => tag.family && tag.family.name === this.font);
-    },
-    similarFamilies() {
-      console.log("parent", this.$parent);
-      console.log("Root", this.$root);
-      console.log("GF", this.$root.gf);
-      if (!this.$root.gf) {
-        console.warn("GF not found in root");
-        return [];
-      }
-      return this.$root.gf.similarFamilies(this.font, 10) || [];
-    },
-    lintErrors() {
-      if (!this.$parent.gf || !this.$parent.gf.linter) {
-        console.warn("GF linter not found in parent");
-        return [];
-      }
-      return this.$parent.gf.linter(this.$parent.gf.lintRules, this.font, this.filteredTags) || [];
-    }
-  },
-  methods: {
-    removeTag(tag) {
-      this.$parent.$emit('remove-tag', tag);
-    },
-    addFontPanel(font) {
-      this.$parent.panels.push({ type: 'font', font });
-    }
-  },
-};
+<script setup lang="ts">
+import { computed, defineProps, getCurrentInstance, ref } from 'vue';
+
+const props = defineProps(['tags', 'font', 'gf']);
+
+const font = ref(props.font); // Input for new category
+
+
+const filteredTags = computed(() => {
+  // Assumes each tag has a property 'family' with a 'name'
+  return props.tags.filter(tag => tag.family && tag.family.name === font.value);
+});
+
+const similarFamilies = computed(() => {
+  return props.gf.similarFamilies(font.value, 10) || [];
+});
+
+const lintErrors = computed(() => {
+  return props.gf.linter(props.gf.lintRules, font.value, filteredTags.value) || [];
+});
+
+function removeTag(tag) {
+  const instance = getCurrentInstance();
+  instance?.parent.$emit('remove-tag', tag);
+}
+function addFontPanel(font) {
+  const instance = getCurrentInstance();
+  instance?.parent.panels.push({ type: 'font', font });
+}
 </script>
 <template>
   <div>

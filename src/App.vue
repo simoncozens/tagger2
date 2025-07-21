@@ -3,7 +3,8 @@ import { GF, Tags, FontTag, FontTagGroup } from './models.ts';
 
 export default {
   data: () => ({
-    gf: new GF(),
+    loaded: false,
+    gf: null,
     tags: null,
     tagGroups: [],
     panels: [
@@ -93,14 +94,15 @@ export default {
     tagGroup.addTag(tag1);
     tagGroup.addTag(tag2);
     this.tagGroups.push(tagGroup);
+    this.loaded = true;
   }
 
 }
 </script>
 <template>
-  <div id="app">
+  <div id="app" v-if="loaded">
     <div id="fonts">
-      <link v-for="family in this.gf && this.gf.families ? this.gf.families : []" :href="family.url" rel="stylesheet">
+      <link v-for="family in gf.families" :href="family.url" rel="stylesheet">
     </div>
     <button @click="addFontPanel('Maven Pro')">Tags in font</button>
     <button @click="addCategoriesPanel(['/Expressive/Loud'])">Tags in category</button>
@@ -113,7 +115,8 @@ export default {
     <div style="display: flex; flex-direction: row; width: 100vw; min-height: 100vh;">
       <div v-for="(panel, idx) in panels" :key="idx"
         :style="{ flex: '1 1 0', minWidth: 0, borderRight: idx < panels.length - 1 ? '1px solid #eee' : 'none', height: '100vh', overflow: 'auto' }">
-        <panel :panel="panel" :tags="tags && tags.items ? tags.items : []" @remove="removePanel(idx)"></panel>
+        <panel :panel="panel" :gf="gf" :tags="tags?.items || []" @remove="removePanel(idx)">
+        </panel>
       </div>
     </div>
   </div>

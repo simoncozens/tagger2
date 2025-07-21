@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Tags, Font, FontTagGroup } from "../models";
+import { Tags, Font, FontTagGroup, GF } from "../models";
 import { defineProps, defineEmits } from "vue";
 
 type FontPanel = {
@@ -20,6 +20,7 @@ export type Panel = FontPanel | CategoriesPanel | VfPanel; // Union type for pan
 const props = defineProps<{
   panel: Panel,
   tags: Tags,
+  gf: GF,
 }>();
 const emit = defineEmits(["remove"]);
 
@@ -27,9 +28,9 @@ const emit = defineEmits(["remove"]);
 <template>
   <div class="panel" style="border:1px solid #ccc; padding:1em; margin-bottom:1em;">
     <button @click="emit('remove')" style="float:right">✕</button>
-    <tags-by-font v-if="panel.type === 'font'" :tags="tags" :font="panel.font"></tags-by-font>
+    <tags-by-font v-if="panel.type === 'font'" :tags="tags" :font="panel.font" :gf="gf"></tags-by-font>
     <tags-by-categories v-else-if="panel.type === 'categories'" :tags="tags" :categories="panel.categories"
-      :tagGroups="panel.tagGroups"></tags-by-categories>
-    <vf-view v-else-if="panel.type === 'vf-view'" :families="panel.families"></vf-view>
+      :tagGroups="panel.tagGroups" :gf="gf"></tags-by-categories>
+    <vf-view v-else-if="panel.type === 'vf-view'" :families="panel.families" :gf="gf"></vf-view>
   </div>
 </template>
