@@ -4,7 +4,9 @@ export default {
   data() {
     return {
       selectedCategories: [...this.categories],
-      sortBy: 'family' // Default sorting option
+      sortBy: 'family', // Default sorting option
+      tagFilter: '',
+      reverseTags: false
     };
   },
   watch: {
@@ -15,10 +17,10 @@ export default {
   computed: {
     filteredTags() {
       // Use selectedCategories for filtering
-      const filtered = this.tags.filter(tag => this.selectedCategories.includes(tag.tagName));
+      let filtered = this.tags.filter(tag => this.selectedCategories.includes(tag.tagName));
       // Sort by family name and tag name
       if (this.sortBy === 'score') {
-        return filtered.sort((a, b) => b.score - a.score);
+        filtered = filtered.sort((a, b) => b.score - a.score);
       }
       if (this.sortBy === 'family') {
         return filtered.sort((a, b) => {
@@ -29,6 +31,27 @@ export default {
           return 0;
         });
       }
+      if (this.sortBy === 'popularity' || this.sortBy === 'trending') {
+        const familyData = this.$attrs.gf.familyData;
+        filtered = filtered.sort((a, b) => {
+          const aVal = Number(familyData[a.family.name]?.[this.sortBy]) || 0;
+          const bVal = Number(familyData[b.family.name]?.[this.sortBy]) || 0;
+        if (aVal < bVal) return -1;
+        if (aVal > bVal) return 1;
+        return 0;
+        });
+      }
+
+
+      if (this.tagFilter !== "") {
+        const myRegex = new RegExp(this.tagFilter, "i");
+        debugger;
+        filtered = filtered.filter(tag => myRegex.test(tag.family.name));
+      }
+      if (this.reverseTags) {
+        filtered.reverse();
+      }
+      return filtered;
     },
     sortedCategories() {
       const res = this.tags.map(tag => tag.tagName)
@@ -52,7 +75,13 @@ export default {
       <select id="sortBy" v-model="sortBy">
         <option value="family">Family</option>
         <option value="score">Score</option>
+        <option value="popularity">Popularity</option>
+        <option value="trending">Trending</option>
       </select>
+      <button @click="reverseTags = !reverseTags">
+        Reverse Order
+      </button>
+      <input type="text" v-model="tagFilter" placeholder="Filter tags by name" />
     </div>
     <div v-for="tag in filteredTags" :key="tag.family.name + tag.tagName + tag.score">
       <tag-view :tag="tag"></tag-view>
