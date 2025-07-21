@@ -4,7 +4,7 @@ import Panel from "./components/Panel.js";
 import AddTag from "./components/AddTag.js";
 import AddTags from "./components/AddTags.js";
 import AddCategory from "./components/AddCategory.js";
-import TagView from "./components/TagView.js";
+import TagView from "./components/TagView.vue";
 import TagsByCategories from "./components/TagsByCategories.js";
 import TagsByFont from "./components/TagsByFont.js";
 import VFView from "./components/VFView.js";

@@ -1,9 +1,9 @@
 <script language="ts">
-import { GF, Tags, FontTag, FontTagGroup } from './models.js';
+import { GF, Tags, FontTag, FontTagGroup } from './models.ts';
 
 export default {
   data: () => ({
-    gf: null,
+    gf: new GF(),
     tags: null,
     tagGroups: [],
     panels: [
