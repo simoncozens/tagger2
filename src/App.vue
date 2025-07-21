@@ -1,0 +1,134 @@
+<script setup lang="ts">
+import { computed, onBeforeMount, ref } from 'vue';
+import type { ComputedRef } from 'vue';
+import { GF, Tags, FontTag, FontTagGroup } from './models';
+import type { Panel } from './components/Panel.vue';
+import type { FilterSet } from './components/AddTags.vue';
+
+let loaded = ref(false);
+let gf = ref<GF | null>(null);
+let tags = ref<Tags | null>(null);
+let tagGroups = ref<FontTagGroup[]>([]);
+let panels = ref<Panel[]>([
+  { type: 'font', font: 'Roboto' },
+  { type: 'categories', categories: ['/Expressive/Loud', '/Expressive/Childlike'], tagGroups: [] }
+]);
+
+let categories: ComputedRef<string[]> = computed(() => {
+  return tags.value ? tags.value.categories : [] as string[];
+});
+
+function performAddTag(tag: FontTag) {
+  if (!tags.value) return;
+  console.log("Adding tag", tag);
+  const family = gf.value?.families.find(f => f.name === tag.family.name);
+  if (family) {
+    tag.family = family; // Ensure the family is set correctly
+    tags.value.items.push(tag);
+  }
+}
+
+function performAddTags(filterSet: FilterSet) {
+  console.log("Filter set", filterSet);
+  for (let family of gf.value?.families || []) {
+    let addFamily = false;
+    for (let axis of family.axes) {
+      if (
+        filterSet.lowTag.filters.some(f => f.axis == axis.tag) &&
+        filterSet.highTag.filters.some(f => f.axis == axis.tag) &&
+        filterSet.lowTag.filters.some(f => f.value >= axis.min) &&
+        filterSet.highTag.filters.some(f => f.value <= axis.max)) { addFamily = true; }
+    }
+    if (addFamily) {
+      for (let category of filterSet.categories) {
+        const lowTag = new FontTag(category, family, [{ tagName: "wght", value: 100 }],
+          filterSet.lowTag.score);
+        const highTag = new FontTag(category, family, [{ tagName: "wght", value: 900 }],
+          filterSet.highTag.score);
+        const fontTag = new FontTagGroup();
+        fontTag.addTag(lowTag);
+        fontTag.addTag(highTag);
+        tagGroups.value.push(fontTag);
+      }
+    }
+  }
+}
+function performAddCategory(category: string) {
+  if (!tags.value!.categories.includes(category)) {
+    tags.value!.categories.push(category);
+  }
+}
+function addFontPanel(font: string) {
+  panels.value.push({ type: 'font', font });
+}
+function addCategoriesPanel(categories: string[]) {
+  panels.value.push({
+    type: 'categories', categories, tagGroups: tagGroups.value
+  });
+}
+function addVFViewPanel() {
+  panels.value.push({
+    type: 'vf-view', families: gf.value?.families || []
+  });
+}
+function removePanel(idx: number) { panels.value.splice(idx, 1); }
+function removeTag(tag: FontTag) {
+  const index = tags.value!.items.indexOf(tag);
+  if (index !== -1) {
+    tags.value!.items.splice(index, 1);
+  }
+}
+function updateTags(newTags: Tags) {
+  tags.value = newTags;
+  tags.value.sortCategories();
+}
+
+onBeforeMount(async () => {
+  gf.value = new GF();
+  await gf.value.getFamilyData();
+  await gf.value.getLintRules();
+  await gf.value.getTagDefinitions();
+  gf.value.loadFamilies();
+
+  tags.value = new Tags(gf.value);
+  tags.value.sortCategories();
+  // Subscribe to events
+  const family = gf.value.families.find(f => f.name === 'Maven Pro');
+  if (!family) {
+    console.error("Family 'Maven Pro' not found");
+  } else {
+    const tag1 = new FontTag('/Purpose/Easy Reading', family, [{ tagName: "wght", value: 400 }], 10);
+    const tag2 = new FontTag('/Purpose/Easy Reading', family, [{ tagName: "wght", value: 900 }], 100);
+    const tagGroup = new FontTagGroup();
+    tagGroup.addTag(tag1);
+    tagGroup.addTag(tag2);
+    tagGroups.value.push(tagGroup);
+    loaded.value = true;
+  }
+});
+</script>
+
+
+<template>
+  <div id="app" v-if="loaded">
+    <div id="fonts">
+      <link v-for="family in gf?.families" :href="family.url" rel="stylesheet">
+    </div>
+    <button @click="addFontPanel('Maven Pro')">Tags in font</button>
+    <button @click="addCategoriesPanel(['/Expressive/Loud'])">Tags in category</button>
+    <button @click="addVFViewPanel()">Font explorer</button>
+    <button @click="addFontPanel('Maven Pro')">Add Font View</button>
+    <button @click="addCategoriesPanel(['/Expressive/Loud'])">Add Tag View</button>
+    <add-tag :categories="categories" @tag-added="performAddTag"></add-tag>
+    <add-tags :categories="categories" @tags-added="performAddTags"></add-tags>
+    <add-category @category-added="performAddCategory"></add-category>
+    <div style="display: flex; flex-direction: row; width: 100vw; min-height: 100vh;">
+      <div v-for="(panel, idx) in panels" :key="idx"
+        :style="{ flex: '1 1 0', minWidth: 0, borderRight: idx < panels.length - 1 ? '1px solid #eee' : 'none', height: '100vh', overflow: 'auto' }">
+        <panel :panel="panel" :gf="gf" :tags="tags?.items || []" @remove-panel="removePanel(idx)"
+          @add-font-panel="addFontPanel" @update-tags="updateTags" @remove-tag="removeTag">
+        </panel>
+      </div>
+    </div>
+  </div>
+</template>

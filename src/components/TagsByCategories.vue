@@ -1,3 +1,4 @@
+<script>
 export default {
   props: ['tags', 'categories', 'tagGroups'],
   data() {
@@ -35,30 +36,32 @@ export default {
         .sort();
       return res;
     }
-  },
-  template: `
-    <div>
-      <h3>Tags for categories:</h3>
-      <div>
-        <select v-model="selectedCategories" multiple>
-          <option v-for="category in sortedCategories" :key="category">
-            {{ category }}
-          </option>
-        </select>
-        <label for="sortBy">Sort by:</label>
-        <select id="sortBy" v-model="sortBy">
-          <option value="family">Family</option>
-          <option value="score">Score</option>
-        </select>
-      </div>
-        <div v-for="tag in filteredTags" :key="tag.family.name + tag.tagName + tag.score">
-          <tag-view :tag="tag"></tag-view>
-        </div>
-        <div v-for="group in tagGroups" :key="group.name"> 
-          <div v-for="tag in group.tags" :key="tag.tagName + tag.family.name + tag.score" style="background-color: lightgray;">
-            <tag-view :tag="tag"></tag-view>
-          </div>
-        </div>
-    </div>
-  `
+  }
 };
+</script>
+<template>
+  <div>
+    <h3>Tags for categories:</h3>
+    <div>
+      <select v-model="selectedCategories" multiple>
+        <option v-for="category in sortedCategories" :key="category">
+          {{ category }}
+        </option>
+      </select>
+      <label for="sortBy">Sort by:</label>
+      <select id="sortBy" v-model="sortBy">
+        <option value="family">Family</option>
+        <option value="score">Score</option>
+      </select>
+    </div>
+    <div v-for="tag in filteredTags" :key="tag.family.name + tag.tagName + tag.score">
+      <tag-view :tag="tag"></tag-view>
+    </div>
+    <div v-for="group in tagGroups" :key="group.name">
+      <div v-for="tag in group.tags" :key="tag.tagName + tag.family.name + tag.score"
+        style="background-color: lightgray;">
+        <tag-view :tag="tag"></tag-view>
+      </div>
+    </div>
+  </div>
+</template>
