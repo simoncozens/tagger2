@@ -29,6 +29,16 @@ export default {
           return 0;
         });
       }
+      if (this.sortBy === 'popularity' || this.sortBy === 'trending') {
+        const familyData = this.$attrs.gf.familyData;
+        return filtered.sort((a, b) => {
+          const aVal = Number(familyData[a.family.name]?.[this.sortBy]) || 0;
+          const bVal = Number(familyData[b.family.name]?.[this.sortBy]) || 0;
+        if (aVal < bVal) return -1;
+        if (aVal > bVal) return 1;
+        return 0;
+        });
+      }
     },
     sortedCategories() {
       const res = this.tags.map(tag => tag.tagName)
@@ -52,6 +62,8 @@ export default {
       <select id="sortBy" v-model="sortBy">
         <option value="family">Family</option>
         <option value="score">Score</option>
+        <option value="popularity">Popularity</option>
+        <option value="trending">Trending</option>
       </select>
     </div>
     <div v-for="tag in filteredTags" :key="tag.family.name + tag.tagName + tag.score">
