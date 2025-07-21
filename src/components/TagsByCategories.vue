@@ -23,7 +23,7 @@ export default {
         filtered = filtered.sort((a, b) => b.score - a.score);
       }
       if (this.sortBy === 'family') {
-        return filtered.sort((a, b) => {
+        filtered = filtered.sort((a, b) => {
           if (a.family.name < b.family.name) return -1;
           if (a.family.name > b.family.name) return 1;
           if (a.tagName < b.tagName) return -1;
