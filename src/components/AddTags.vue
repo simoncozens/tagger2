@@ -1,96 +1,84 @@
-<script lang="ts">
-
-type Filter = {
+<script setup lang="ts">
+export type Filter = {
     axis: string;
     op: string;
     value: number;
     score: number;
 };
+export type Condition = {
+    filters: Filter[];
+    score: number;
+}
+export type FilterSet = {
+    lowTag: Condition;
+    highTag: Condition;
+    categories: string[];
+};
+import { Font } from "../models";
+import { computed, defineProps, ref, defineEmits } from 'vue';
 
-export default {
 
-    //    schema: {
-    //        categories: ["a", "b", "c"],
-    //        lowTag: {
-    //            filters: [],
-    //            score: 10
-    //        },
-    //        highTag: {
-    //            filters: [],
-    //            score: 100
-    //        }
-    //    },
+const props = defineProps({ categories: Array as () => string[] })
+const emit = defineEmits(['tags-added']);
 
-    props: ["categories"],
-    data: function () {
-        return {
-            currentCategories: [],
-            lowTag: {
-                filters: [] as Filter[],
-                score: 0
-            },
-            highTag: {
-                filters: [] as Filter[],
-                score: 0
-            },
-            currentLowAxis: "",
-            currentLowPosition: 0,
-            currentLowOp: "",
-            currentLowScore: 0,
-            currentHighAxis: "",
-            currentHighPosition: 0,
-            currentHighOp: "",
-            currentHighScore: 0,
+let currentCategories = ref<string[]>([]);
+let lowTag = ref<{ filters: Filter[], score: number }>({ filters: [], score: 0 });
+let highTag = ref<{ filters: Filter[], score: number }>({ filters: [], score: 0 });
+let currentLowAxis = ref("");
+let currentLowPosition = ref(0);
+let currentLowOp = ref("");
+let currentLowScore = ref(0);
+let currentHighAxis = ref("");
+let currentHighPosition = ref(0);
+let currentHighOp = ref("");
+let currentHighScore = ref(0);
+
+
+function addFilter() {
+    lowTag.value.filters.push(
+        {
+            axis: currentLowAxis.value,
+            op: currentLowOp.value,
+            value: currentLowPosition.value,
+            score: currentLowScore.value
         }
-    },
-    methods: {
-        addFilter() {
-            this.lowTag.filters.push(
-                {
-                    axis: this.currentLowAxis,
-                    op: this.currentLowOp,
-                    value: this.currentLowPosition,
-                    score: this.currentLowScore
-                }
-            );
-            this.highTag.filters.push(
-                {
-                    axis: this.currentHighAxis,
-                    op: this.currentHighOp,
-                    value: this.currentHighPosition,
-                    score: this.currentHighScore
-                }
-            );
-            this.currentLowAxis = "";
-            this.currentLowPosition = 0;
-            this.currentLowOp = "";
-            this.currentHighAxis = "";
-            this.currentHighPosition = 0;
-            this.currentHighOp = "";
-        },
-        addTags() {
-            const filterSet = {
-                categories: this.currentCategories,
-                lowTag: this.lowTag,
-                highTag: this.highTag
-            };
-            filterSet.lowTag.score = this.currentLowScore;
-            filterSet.highTag.score = this.currentHighScore;
-            this.$emit('tags-added', filterSet);
-            this.currentCategories = [];
-            this.lowTag = { filters: [], score: 0 };
-            this.highTag = { filters: [], score: 0 };
-            this.currentLowAxis = "";
-            this.currentLowPosition = 0;
-            this.currentLowOp = "";
-            this.currentLowScore = 0;
-            this.currentHighAxis = "";
-            this.currentHighPosition = 0;
-            this.currentHighOp = "";
-            this.currentHighScore = 0;
+    );
+    highTag.value.filters.push(
+        {
+            axis: currentHighAxis.value,
+            op: currentHighOp.value,
+            value: currentHighPosition.value,
+            score: currentHighScore.value
         }
-    },
+    );
+    currentLowAxis.value = "";
+    currentLowPosition.value = 0;
+    currentLowOp.value = "";
+    currentHighAxis.value = "";
+    currentHighPosition.value = 0;
+    currentHighOp.value = "";
+}
 
+function addTags() {
+    const filterSet = {
+        categories: currentCategories.value,
+        lowTag: lowTag.value,
+        highTag: highTag.value
+    };
+    filterSet.lowTag.score = currentLowScore.value;
+    filterSet.highTag.score = currentHighScore.value;
+    emit('tags-added', filterSet);
+    currentCategories.value = [];
+    lowTag.value = { filters: [], score: 0 };
+    highTag.value = { filters: [], score: 0 };
+    currentLowAxis.value = "";
+    currentLowPosition.value = 0;
+    currentLowOp.value = "";
+    currentLowScore.value = 0;
+    currentHighAxis.value = "";
+    currentHighPosition.value = 0;
+    currentHighOp.value = "";
+    currentHighScore.value = 0;
 }
 </script>
 <template>

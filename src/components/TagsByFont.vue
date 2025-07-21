@@ -1,7 +1,21 @@
 <script setup lang="ts">
+import { FontTag, GF } from '@/models';
 import { computed, defineProps, getCurrentInstance, ref } from 'vue';
 
-const props = defineProps(['tags', 'font', 'gf']);
+const props = defineProps({
+  tags: {
+    type: Array as () => FontTag[],
+    required: true
+  },
+  font: {
+    type: String,
+    required: true
+  },
+  gf: {
+    type: GF,
+    required: true
+  }
+});
 const emit = defineEmits(['remove-tag', 'add-font-panel', 'update:tags']);
 
 const font = ref(props.font); // Input for new category
@@ -21,7 +35,7 @@ const lintErrors = computed(() => {
 });
 
 // These are emitted to the panel component; remember to handle them there
-function removeTag(tag: string) {
+function removeTag(tag: FontTag) {
   emit('remove-tag', tag);
 }
 function addFontPanel(font: string) {

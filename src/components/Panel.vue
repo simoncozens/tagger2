@@ -4,7 +4,7 @@ import { defineProps, defineEmits } from "vue";
 
 type FontPanel = {
   type: "font"; // Type of panel
-  font: Font; // Font object
+  font: string; // Font name
 };
 type CategoriesPanel = {
   type: "categories"; // Type of panel

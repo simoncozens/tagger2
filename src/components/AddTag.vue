@@ -1,6 +1,19 @@
 <script lang="ts">
 import { FontTag } from "../models";
 
+interface Position {
+    coordinate: number;
+    score: number;
+}
+interface Axis {
+    tag: string;
+    positions: Position[];
+}
+interface AxisSet {
+    score: number;
+    axes: { tag: string; coords: number }[];
+}
+
 export default {
     props: ["categories"],
     data: function () {
@@ -9,7 +22,7 @@ export default {
             newFamily: "",
             newScore: 0,
             isVF: false,
-            axes: [],
+            axes: [] as Axis[],
             axisName: "",
             axisPositions: 2,
         }
@@ -38,15 +51,15 @@ export default {
                 positions: positions
             })
         },
-        deleteAxis(axis) {
+        deleteAxis(axis: Axis) {
             const index = this.axes.indexOf(axis);
             if (index > -1) {
                 this.axes.splice(index, 1);
             }
         },
-        _axesCombos(axes, current = [], res = []) {
+        _axesCombos(axes: Axis[], current = [] as Axis[], res = [] as AxisSet[]) {
             if (current.length === axes.length) {
-                const axisSet = { score: 0, axes: [] };
+                const axisSet: AxisSet = { score: 0, axes: [] };
                 for (let i = 0; i < current.length; i++) {
                     axisSet.score += Number(current[i].score);
                     axisSet.axes.push({ tag: axes[i].tag, coords: current[i].coordinate });
