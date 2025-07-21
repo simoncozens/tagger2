@@ -1,4 +1,6 @@
-import { linter } from "./linter.js";
+import { linter } from "./linter";
+import type { LintRule, Severity } from "./linter.js";
+import { loadText } from "./utils";
 
 export type Axis = {
   tag: string; // Axis tag, e.g. 'wght'
@@ -10,28 +12,6 @@ export type Location = {
   value: number; // Value for the axis
   tagName: string; // Name of the tag, e.g. 'Weight'
 };
-
-async function loadText(path) {
-  if (typeof window !== "undefined" && window.fetch) {
-    // Browser environment
-    const response = await fetch(path);
-    return await response.text();
-  } else if (typeof require !== "undefined") {
-    // Node.js environment
-    const fs = require("fs");
-    const pathModule = require("path");
-    const filePath = pathModule.join(__dirname, path);
-    return fs.readFileSync(filePath, "utf8");
-  } else if (typeof process !== "undefined") {
-    // Node, but ESM module
-    const fs = await import("fs");
-    const pathModule = await import("path");
-    const filePath = pathModule.join(process.cwd(), path);
-    return fs.readFileSync(filePath, "utf8");
-  } else {
-    throw new Error("Unknown environment");
-  }
-}
 
 export class FontTag {
   tagName: string;
@@ -69,10 +49,12 @@ export class FontTag {
 }
 
 export class FontTagGroup {
+  tags: FontTag[]; // Array of FontTag objects
+
   constructor() {
     this.tags = [];
   }
-  addTag(tag) {
+  addTag(tag: FontTag) {
     this.tags.push(tag);
   }
 }
@@ -83,7 +65,12 @@ export class TagDefinition {
   superShortDescription: string;
   related: string[]; // Array of related tag names
 
-  constructor(name, description, superShortDescription, related) {
+  constructor(
+    name: string,
+    description: string,
+    superShortDescription: string,
+    related: string[]
+  ) {
     this.name = name;
     this.description = description;
     this.superShortDescription = superShortDescription;
@@ -163,7 +150,7 @@ export class GF {
   familyData: { [key: string]: any }; // Object to hold family metadata
   families: Font[]; // Array to hold Font objects
   tagDefinitions: { [key: string]: TagDefinition }; // Object to hold tag definitions
-  lintRules: any[]; // Array to hold lint rules
+  lintRules: LintRule[]; // Array to hold lint rules
   linter: any; // Linter instance
 
   constructor() {
@@ -175,8 +162,8 @@ export class GF {
   }
   async getFamilyData() {
     let data = await loadText("family_data.json");
-    data = JSON.parse(data);
-    let familyMeta = data["familyMetadataList"];
+    let parsedData: any = JSON.parse(data);
+    let familyMeta = parsedData["familyMetadataList"];
     let styleEmbeddingsData = await loadText("embeddings.json");
     let styleEmbeddings = JSON.parse(styleEmbeddingsData);
     familyMeta.forEach((family: any) => {
@@ -202,7 +189,7 @@ export class GF {
       this.lintRules.push({
         rule: rule.trim(),
         description: description.trim(),
-        severity: severity.trim(),
+        severity: severity.trim() as Severity,
       });
     }
   }
@@ -296,7 +283,8 @@ export class Tags {
     loadText("families_new.csv").then((csvText) => {
       const lines = csvText.split("\n");
       for (let line of lines) {
-        const [familyName, axes, tagName, score] = line.split(",");
+        const [familyName, axes, tagName, scoreStr] = line.split(",");
+        let score: number = parseFloat(scoreStr);
         if (!familyName || !tagName) {
           console.warn(
             "Skipping line due to missing family name or tag name:",
