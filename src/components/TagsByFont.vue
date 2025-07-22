@@ -16,6 +16,29 @@ const props = defineProps({
     required: true
   }
 });
+
+const selectedFamily = computed(() => {
+  const familyName = props.font;
+  console.log("Selected family for font:", familyName);
+  return props.gf.family(familyName);
+});
+
+
+const fontSize = ref(32);
+
+const cssStyle = computed(() => {
+    if (!selectedFamily.value) return '';
+    let res = `font-family: '${selectedFamily.value.name}'; font-size: ${fontSize.value}pt;`;
+    if (selectedFamily.value.isVF) {
+        res += ' font-variation-settings:';
+    }
+    selectedFamily.value.axes.forEach(axis => {
+        res += ` '${axis.tag}' ${axis.value},`;
+    });
+    return res.slice(0, -1) + ';'; // Remove trailing comma and add semicolon
+});
+
+
 const emit = defineEmits(['remove-tag', 'add-font-panel', 'update:tags']);
 
 const font = ref(props.font); // Input for new category
@@ -46,17 +69,24 @@ function addFontPanel(font: string) {
 <template>
   <div>
     <h3>Tags for:</h3>
-    <select v-model="font">
+    <select v-model="props.font">
       <option
         v-for="tag in tags.map(tag => tag.family.name).filter((value, index, self) => self.indexOf(value) === index)"
         :key="tag">
         {{ tag }}
       </option>
     </select>
-    <p :style="{ fontFamily: font }" contenteditable="true" class="sample">
+    <div>
+      <label>Font size:</label>
+      <input type="range" v-model="fontSize" min="8" max="100" default="32" /> {{ fontSize }}pt
+    </div>
+    <div contenteditable="true" :style="cssStyle" style="border: 1px solid #ccc; padding: 1em;">
       Grumpy wizards make toxic brew for the evil Queen and Jack.
-    </p>
-
+    </div>
+    <div v-for="axis in selectedFamily.axes" :key="axis.tag">
+        <label>{{ axis.tag }}: {{ axis.value }}</label>
+        <input type="range" v-model="axis.value" :min="axis.min" :max="axis.max" />
+    </div>
     <ul>
       <li v-for="tag in filteredTags" :key="tag.tagName + tag.family.name + tag.score">
         <span class="tag-name">{{ tag.tagName }}</span>
