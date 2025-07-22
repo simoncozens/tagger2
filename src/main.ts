@@ -7,7 +7,6 @@ import AddCategory from "./components/AddCategory.vue";
 import TagView from "./components/TagView.vue";
 import TagsByCategories from "./components/TagsByCategories.vue";
 import TagsByFont from "./components/TagsByFont.vue";
-import VFView from "./components/VFView.vue";
 
 import "./assets/main.css";
 
@@ -18,7 +17,6 @@ Vue.component("add-category", AddCategory);
 Vue.component("tags-by-categories", TagsByCategories);
 Vue.component("tags-by-font", TagsByFont);
 Vue.component("tag-view", TagView);
-Vue.component("vf-view", VFView);
 
 var app = new Vue({
   el: "#app",
