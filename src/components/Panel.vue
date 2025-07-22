@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { Tags, Font, FontTagGroup, GF, FontTag } from "../models";
-import { defineProps, defineEmits } from "vue";
+import { defineProps, defineEmits, onMounted } from "vue";
 
 type FontPanel = {
   type: "font"; // Type of panel
@@ -30,6 +30,27 @@ function addFontPanel(font: string) {
 function updateTags(tags: Tags) {
   emit('update:tags', tags);
 }
+
+import { delegate } from 'tippy.js';
+import 'tippy.js/dist/tippy.css';
+import 'tippy.js/themes/light-border.css';
+
+
+
+onMounted(() => {
+  delegate('.panel', {
+    target: '.tag-name svg',
+    content: (r) => {
+      const tagName = r.closest('.tag-name')?.textContent?.trim() || '';
+      return props.gf?.tagDefinitions[tagName]?.description || `No description available for ${tagName}`;
+    },
+    allowHTML: true,
+    placement: 'top',
+    arrow: true,
+    theme: 'light-border',
+    maxWidth: 300
+  });
+});
 
 </script>
 <template>
