@@ -66,11 +66,6 @@ function addCategoriesPanel(categories: string[]) {
     type: 'categories', categories, tagGroups: tagGroups.value
   });
 }
-function addVFViewPanel() {
-  panels.value.push({
-    type: 'vf-view', families: gf.value?.families || []
-  });
-}
 function removePanel(idx: number) { panels.value.splice(idx, 1); }
 function removeTag(tag: FontTag) {
   const index = tags.value!.items.indexOf(tag);
@@ -116,9 +111,6 @@ onBeforeMount(async () => {
     </div>
     <button @click="addFontPanel('Maven Pro')">Tags in font</button>
     <button @click="addCategoriesPanel(['/Expressive/Loud'])">Tags in category</button>
-    <button @click="addVFViewPanel()">Font explorer</button>
-    <button @click="addFontPanel('Maven Pro')">Add Font View</button>
-    <button @click="addCategoriesPanel(['/Expressive/Loud'])">Add Tag View</button>
     <add-tag :categories="categories" @tag-added="performAddTag"></add-tag>
     <add-tags :categories="categories" @tags-added="performAddTags"></add-tags>
     <add-category @category-added="performAddCategory"></add-category>
