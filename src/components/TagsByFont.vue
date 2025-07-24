@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { EventBus } from '@/eventbus';
 import { FontTag, GF } from '@/models';
-import { computed, defineProps, onBeforeMount, ref } from 'vue';
+import { computed, defineProps, onBeforeUpdate, ref } from 'vue';
 
 const props = defineProps({
   tags: {
@@ -18,31 +18,31 @@ const props = defineProps({
   }
 });
 
+
+const fontSize = ref(32);
+
+// Props just gets us started, Vue gets mad at us if we change it during the
+// select box. So make our own copy and use that everywhere.
+const font = ref(props.font);
+
 const selectedFamily = computed(() => {
-  const familyName = props.font;
+  const familyName = font.value;
   console.log("Selected family for font:", familyName);
   return props.gf.family(familyName);
 });
 
 
-const fontSize = ref(32);
-
 const cssStyle = computed(() => {
-    if (!selectedFamily.value) return '';
-    let res = `font-family: '${selectedFamily.value.name}'; font-size: ${fontSize.value}pt;`;
-    if (selectedFamily.value.isVF) {
-        res += ' font-variation-settings:';
-    }
-    selectedFamily.value.axes.forEach(axis => {
-        res += ` '${axis.tag}' ${axis.value},`;
-    });
-    return res.slice(0, -1) + ';'; // Remove trailing comma and add semicolon
+  if (!selectedFamily.value) return '';
+  let res = `font-family: '${selectedFamily.value.name}'; font-size: ${fontSize.value}pt;`;
+  if (selectedFamily.value.isVF) {
+    res += ' font-variation-settings:';
+  }
+  selectedFamily.value.axes.forEach(axis => {
+    res += ` '${axis.tag}' ${axis.value},`;
+  });
+  return res.slice(0, -1) + ';'; // Remove trailing comma and add semicolon
 });
-
-
-const emit = defineEmits(['remove-tag', 'add-font-panel', 'update:tags']);
-
-const font = ref(props.font); // Input for new category
 
 
 const filteredTags = computed(() => {
@@ -66,9 +66,9 @@ function addFontPanel(font: string) {
   EventBus.$emit('add-font-panel', font);
 }
 
-onBeforeMount(() => {
+onBeforeUpdate(() => {
   // Ensure the font is included in the CSS
-  EventBus.$emit('ensure-loaded', font?.value)
+  EventBus.$emit('ensure-loaded', font.value);
   similarFamilies.value.forEach(family => {
     props.gf?.ensureLoaded(family);
   });
@@ -78,7 +78,7 @@ onBeforeMount(() => {
 <template>
   <div>
     <h3>Tags for:</h3>
-    <select v-model="props.font">
+    <select v-model="font">
       <option
         v-for="tag in tags.map(tag => tag.family.name).filter((value, index, self) => self.indexOf(value) === index)"
         :key="tag">
@@ -93,8 +93,8 @@ onBeforeMount(() => {
       Grumpy wizards make toxic brew for the evil Queen and Jack.
     </div>
     <div v-for="axis in selectedFamily.axes" :key="axis.tag">
-        <label>{{ axis.tag }}: {{ axis.value }}</label>
-        <input type="range" v-model="axis.value" :min="axis.min" :max="axis.max" />
+      <label>{{ axis.tag }}: {{ axis.value }}</label>
+      <input type="range" v-model="axis.value" :min="axis.min" :max="axis.max" />
     </div>
     <ul>
       <li v-for="tag in filteredTags" :key="tag.tagName + tag.family.name">
@@ -110,7 +110,7 @@ onBeforeMount(() => {
       </li>
     </ul>
     <h3 v-if="similarFamilies.length">Similar families</h3>
-    <ul>
+    <ul :key="similarFamilies.join('-')">
       <li v-for="family in similarFamilies" :key="family" :style="{ fontFamily: family }">
         {{ family }} <button @click="addFontPanel(family)">Add</button>
       </li>
