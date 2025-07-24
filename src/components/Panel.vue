@@ -22,7 +22,7 @@ const emit = defineEmits(["remove-panel"]);
 
 import { delegate } from 'tippy.js';
 import 'tippy.js/dist/tippy.css';
-import 'tippy.js/themes/light-border.css';
+import 'tippy.js/themes/material.css';
 
 
 
@@ -36,7 +36,7 @@ onMounted(() => {
     allowHTML: true,
     placement: 'top',
     arrow: true,
-    theme: 'light-border',
+    theme: 'material',
     maxWidth: 300
   });
 });
