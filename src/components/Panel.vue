@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Tags, Font, FontTagGroup, GF, FontTag } from "../models";
+import { Tags, Font, FontTagGroup, GF } from "../models";
 import { defineProps, defineEmits, onMounted } from "vue";
 
 type FontPanel = {
@@ -18,18 +18,7 @@ const props = defineProps<{
   tags: Tags,
   gf: GF,
 }>();
-const emit = defineEmits(["remove-panel", 'remove-tag', 'add-font-panel', 'update:tags']);
-
-// Bubble emits to parent
-function removeTag(tag: FontTag) {
-  emit('remove-tag', tag);
-}
-function addFontPanel(font: string) {
-  emit('add-font-panel', font);
-}
-function updateTags(tags: Tags) {
-  emit('update:tags', tags);
-}
+const emit = defineEmits(["remove-panel"]);
 
 import { delegate } from 'tippy.js';
 import 'tippy.js/dist/tippy.css';
@@ -56,8 +45,7 @@ onMounted(() => {
 <template>
   <div class="panel" style="border:1px solid #ccc; padding:1em; margin-bottom:1em;">
     <button @click="emit('remove-panel')" style="float:right">✕</button>
-    <tags-by-font v-if="panel.type === 'font'" :tags="tags" :font="panel.font" :gf="gf" @remove-tag="removeTag"
-      @add-font-panel="addFontPanel" @update:tags="updateTags"></tags-by-font>
+    <tags-by-font v-if="panel.type === 'font'" :tags="tags" :font="panel.font" :gf="gf"></tags-by-font>
     <tags-by-categories v-else-if="panel.type === 'categories'" :tags="tags" :categories="panel.categories"
       :tagGroups="panel.tagGroups" :gf="gf" @remove-tag="removeTag"></tags-by-categories>
   </div>
