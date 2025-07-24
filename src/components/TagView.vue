@@ -38,7 +38,7 @@ const removeTag = () => {
             </span>
             <button @click="removeTag" class="remove-tag-btn">Remove</button>
         </div>
-        <div class="text-editor" contenteditable="true" :style="props.tag?.cssStyle">
+        <div class="text-editor" contenteditable="true" :style="props.tag?.cssStyle(32)">
             Hello world
         </div>
     </div>

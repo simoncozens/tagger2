@@ -36,11 +36,11 @@ export class FontTag {
       .join(";");
     return `${this.tagName},${this.family.name},${locationCSV},${this.score}`;
   }
-  get cssStyle() {
+  cssStyle(fontSize = 32) {
     if (this.location.length === 0) {
-      return `font-family: ${this.family.name}; font-size: 32pt;`;
+      return `font-family: ${this.family.name}; font-size: ${fontSize}pt;`;
     }
-    let style = `font-family: "${this.family.name}", "Adobe NotDef"; font-size: 32pt; font-variation-settings:`;
+    let style = `font-family: "${this.family.name}", "Adobe NotDef"; font-size: ${fontSize}pt; font-variation-settings:`;
     for (let axis of this.location) {
       style += ` '${axis.tagName}' ${axis.value},`;
     }
@@ -98,11 +98,11 @@ export class Font {
   get isVF() {
     return this.axes.length > 0;
   }
-  get cssStyle() {
+  cssStyle(fontSize = 32) {
     if (!this.isVF) {
-      return `font-family: '${this.name}'; font-size: 32pt;`;
+      return `font-family: '${this.name}'; font-size: ${fontSize}pt;`;
     }
-    let res = `font-family: '${this.name}'; font-size: 32pt; font-variation-settings:`;
+    let res = `font-family: '${this.name}'; font-size: ${fontSize}pt; font-variation-settings:`;
     this.axes.forEach((axis) => {
       res += ` '${axis.tag}' ${axis.min}..${axis.max},`;
     });
