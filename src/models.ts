@@ -303,6 +303,11 @@ export class Tags {
     const tag = new FontTag(tagName, fontName, axes, score);
     this.items.push(tag);
   }
+  has(tagName: string, fontName: string): boolean {
+    return this.items.some((tag) => {
+      return tag.tagName === tagName && tag.family.name === fontName;
+    });
+  }
   sort() {
     this.items.sort((a, b) => a.tagName.localeCompare(b.tagName));
   }
