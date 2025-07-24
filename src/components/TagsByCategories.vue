@@ -59,6 +59,11 @@ export default {
         .sort();
       return res;
     }
+  },
+  methods: {
+    removeTag(tag) {
+      this.$emit('remove-tag', tag);
+    }
   }
 };
 </script>
@@ -84,12 +89,12 @@ export default {
       <input type="text" v-model="tagFilter" placeholder="Filter tags by name" />
     </div>
     <div v-for="tag in filteredTags" :key="tag.family.name + tag.tagName + tag.score">
-      <tag-view :tag="tag"></tag-view>
+      <tag-view :tag="tag" @remove-tag="removeTag"></tag-view>
     </div>
     <div v-for="group in tagGroups" :key="group.name">
       <div v-for="tag in group.tags" :key="tag.tagName + tag.family.name + tag.score"
         style="background-color: lightgray;">
-        <tag-view :tag="tag"></tag-view>
+        <tag-view :tag="tag" @remove-tag="removeTag"></tag-view>
       </div>
     </div>
   </div>
