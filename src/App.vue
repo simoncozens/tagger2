@@ -130,7 +130,7 @@ onBeforeMount(async () => {
       <div style="display: flex; flex-direction: row; width: 100vw; min-height: 100vh;">
         <div v-for="(panel, idx) in panels" :key="idx"
           :style="{ flex: '1 1 0', minWidth: 0, borderRight: idx < panels.length - 1 ? '1px solid #eee' : 'none', height: '100vh', overflow: 'auto' }">
-          <panel :panel="panel" :gf="gf" :tags="tags?.items || []" @remove-panel="removePanel(idx)">
+          <panel :panel="panel" :gf="gf" :tags="tags" @remove-panel="removePanel(idx)">
           </panel>
         </div>
       </div>
