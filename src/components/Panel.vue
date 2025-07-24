@@ -47,6 +47,6 @@ onMounted(() => {
     <button @click="emit('remove-panel')" style="float:right">✕</button>
     <tags-by-font v-if="panel.type === 'font'" :tags="tags" :font="panel.font" :gf="gf"></tags-by-font>
     <tags-by-categories v-else-if="panel.type === 'categories'" :tags="tags" :categories="panel.categories"
-      :tagGroups="panel.tagGroups" :gf="gf" @remove-tag="removeTag"></tags-by-categories>
+      :tagGroups="panel.tagGroups" :gf="gf"></tags-by-categories>
   </div>
 </template>
