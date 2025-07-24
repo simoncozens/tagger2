@@ -62,7 +62,7 @@ function addFontPanel(font: string) {
 function addTodoPanel() {
   panels.value.push({ type: 'todo' });
 }
-function addCategoriesPanel(categories: string[]) {
+function addCategoriesPanel() {
   panels.value.push({
     type: 'categories', tagGroups: tagGroups.value
   });
@@ -76,7 +76,6 @@ function removeTag(tag: FontTag) {
 }
 function updateTags(newTags: Tags) {
   tags.value = newTags;
-  tags.value.sortCategories();
 }
 
 onBeforeMount(async () => {
