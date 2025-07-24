@@ -66,7 +66,7 @@ function getNextUntagged(): Untagged | null {
         // Grab a random tagname
         const tagname = tagnames[Math.floor(Math.random() * tagnames.length)];
         // If the family is not tagged with the tagname, return it
-        if (!props.tags.has(family.name, tagname)) {
+        if (!props.tags.has(tagname, family.name)) {
             EventBus.$emit('ensure-loaded', family.name);
             return {
                 family,
