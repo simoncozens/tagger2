@@ -300,8 +300,20 @@ export class Tags {
     return this.items.map((tag) => tag.toCSV()).join("\n");
   }
   addTag(tagName: string, fontName: string, axes: any[], score: number) {
-    const tag = new FontTag(tagName, fontName, axes, score);
+    let family = this.gf.family(fontName);
+    if (family === undefined || family.name === undefined) {
+      console.warn("Family not found (adding tag):", fontName);
+      return;
+    }
+    if (this.has(tagName, fontName)) {
+      console.warn(
+        `Tag ${tagName} for font ${fontName} already exists. Skipping addition.`
+      );
+      return;
+    }
+    const tag = new FontTag(tagName, family, axes, score);
     this.items.push(tag);
+
   }
   has(tagName: string, fontName: string): boolean {
     return this.items.some((tag) => {
