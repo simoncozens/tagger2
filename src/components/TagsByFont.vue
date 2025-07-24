@@ -92,7 +92,7 @@ onBeforeUpdate(() => {
     <div contenteditable="true" :style="cssStyle" style="border: 1px solid #ccc; padding: 1em;">
       Grumpy wizards make toxic brew for the evil Queen and Jack.
     </div>
-    <div v-for="axis in selectedFamily.axes" :key="axis.tag">
+    <div v-for="axis in selectedFamily?.axes" :key="axis.tag">
       <label>{{ axis.tag }}: {{ axis.value }}</label>
       <input type="range" v-model="axis.value" :min="axis.min" :max="axis.max" />
     </div>
