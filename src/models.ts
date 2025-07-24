@@ -13,6 +13,12 @@ export type Location = {
   tagName: string; // Name of the tag, e.g. 'Weight'
 };
 
+export type Exemplars = {
+  high: FontTag[];
+  low: FontTag[];
+  medium: FontTag[];
+};
+
 export class FontTag {
   tagName: string;
   family: Font;
@@ -76,13 +82,32 @@ export class TagDefinition {
     this.superShortDescription = superShortDescription;
     this.related = related;
   }
-  get exemplars() {
-    return this.related.map((tag) => {
-      return {
-        name: tag,
-        url: `https://fonts.google.com/specimen/${tag.replace(/ /g, "+")}`,
-      };
-    });
+  exemplars(tags: Tags): Exemplars {
+    const exemplars: Exemplars = {
+      high: [],
+      low: [],
+      medium: [],
+    };
+    for (const tag of tags.items) {
+      if (tag.tagName !== this.name) {
+        continue;
+      }
+      if (tag.score > 80) {
+        exemplars.high.push(tag);
+      } else if (tag.score <= 20) {
+        exemplars.low.push(tag);
+      } else if (exemplars.medium.length < 3) {
+        exemplars.medium.push(tag);
+      }
+    }
+    // Choose top three high
+    exemplars.high.sort((a, b) => b.score - a.score);
+    exemplars.high = exemplars.high.slice(0, 3);
+    // Choose lowest three low
+    exemplars.low.sort((a, b) => a.score - b.score);
+    exemplars.low = exemplars.low.slice(0, 3);
+    console.log(`Exemplars for ${this.name}:`, exemplars);
+    return exemplars;
   }
 }
 
