@@ -1,6 +1,7 @@
 <script setup lang="ts">
+import { EventBus } from '@/eventbus';
 import { FontTag, GF } from '@/models';
-import { computed, defineProps, getCurrentInstance, ref } from 'vue';
+import { computed, defineProps, onBeforeUpdate, ref } from 'vue';
 
 const props = defineProps({
   tags: {
@@ -17,31 +18,31 @@ const props = defineProps({
   }
 });
 
+
+const fontSize = ref(32);
+
+// Props just gets us started, Vue gets mad at us if we change it during the
+// select box. So make our own copy and use that everywhere.
+const font = ref(props.font);
+
 const selectedFamily = computed(() => {
-  const familyName = props.font;
+  const familyName = font.value;
   console.log("Selected family for font:", familyName);
   return props.gf.family(familyName);
 });
 
 
-const fontSize = ref(32);
-
 const cssStyle = computed(() => {
-    if (!selectedFamily.value) return '';
-    let res = `font-family: '${selectedFamily.value.name}'; font-size: ${fontSize.value}pt;`;
-    if (selectedFamily.value.isVF) {
-        res += ' font-variation-settings:';
-    }
-    selectedFamily.value.axes.forEach(axis => {
-        res += ` '${axis.tag}' ${axis.value},`;
-    });
-    return res.slice(0, -1) + ';'; // Remove trailing comma and add semicolon
+  if (!selectedFamily.value) return '';
+  let res = `font-family: '${selectedFamily.value.name}'; font-size: ${fontSize.value}pt;`;
+  if (selectedFamily.value.isVF) {
+    res += ' font-variation-settings:';
+  }
+  selectedFamily.value.axes.forEach(axis => {
+    res += ` '${axis.tag}' ${axis.value},`;
+  });
+  return res.slice(0, -1) + ';'; // Remove trailing comma and add semicolon
 });
-
-
-const emit = defineEmits(['remove-tag', 'add-font-panel', 'update:tags']);
-
-const font = ref(props.font); // Input for new category
 
 
 const filteredTags = computed(() => {
@@ -57,19 +58,27 @@ const lintErrors = computed(() => {
   return props.gf.linter(props.gf.lintRules, font.value, filteredTags.value) || [];
 });
 
-// These are emitted to the panel component; remember to handle them there
 function removeTag(tag: FontTag) {
-  emit('remove-tag', tag);
+  EventBus.$emit('remove-tag', tag);
 }
 function addFontPanel(font: string) {
   console.log("Emitting add-font-panel from TagsByFont for ", font);
-  emit('add-font-panel', font);
+  EventBus.$emit('add-font-panel', font);
 }
+
+onBeforeUpdate(() => {
+  // Ensure the font is included in the CSS
+  EventBus.$emit('ensure-loaded', font.value);
+  similarFamilies.value.forEach(family => {
+    props.gf?.ensureLoaded(family);
+  });
+});
+
 </script>
 <template>
   <div>
     <h3>Tags for:</h3>
-    <select v-model="props.font">
+    <select v-model="font">
       <option
         v-for="tag in tags.map(tag => tag.family.name).filter((value, index, self) => self.indexOf(value) === index)"
         :key="tag">
@@ -83,12 +92,12 @@ function addFontPanel(font: string) {
     <div contenteditable="true" :style="cssStyle" style="border: 1px solid #ccc; padding: 1em;">
       Grumpy wizards make toxic brew for the evil Queen and Jack.
     </div>
-    <div v-for="axis in selectedFamily.axes" :key="axis.tag">
-        <label>{{ axis.tag }}: {{ axis.value }}</label>
-        <input type="range" v-model="axis.value" :min="axis.min" :max="axis.max" />
+    <div v-for="axis in selectedFamily?.axes" :key="axis.tag">
+      <label>{{ axis.tag }}: {{ axis.value }}</label>
+      <input type="range" v-model="axis.value" :min="axis.min" :max="axis.max" />
     </div>
     <ul>
-      <li v-for="tag in filteredTags" :key="tag.tagName + tag.family.name + tag.score">
+      <li v-for="tag in filteredTags" :key="tag.tagName + tag.family.name">
         <span class="tag-name">{{ tag.tagName }}
           <svg xmlns="http://www.w3.org/2000/svg" height="22px" viewBox="0 -1000 960 960" width="24px" fill="#000000"
             v-if="props.gf?.tagDefinitions[tag.tagName]">
@@ -96,12 +105,12 @@ function addFontPanel(font: string) {
               d="M440-280h80v-240h-80v240Zm40-320q17 0 28.5-11.5T520-640q0-17-11.5-28.5T480-680q-17 0-28.5 11.5T440-640q0 17 11.5 28.5T480-600Zm0 520q-83 0-156-31.5T197-197q-54-54-85.5-127T80-480q0-83 31.5-156T197-763q54-54 127-85.5T480-880q83 0 156 31.5T763-763q54 54 85.5 127T880-480q0 83-31.5 156T763-197q-54 54-127 85.5T480-80Z" />
           </svg>
         </span>
-        <input type="number" v-model="tag.score" @change="emit('update:tags', tags)" />
+        <input type="number" v-model="tag.score" @change="EventBus.$emit('update:tags', tags)" />
         <button @click="removeTag(tag)">Remove</button>
       </li>
     </ul>
     <h3 v-if="similarFamilies.length">Similar families</h3>
-    <ul>
+    <ul :key="similarFamilies.join('-')">
       <li v-for="family in similarFamilies" :key="family" :style="{ fontFamily: family }">
         {{ family }} <button @click="addFontPanel(family)">Add</button>
       </li>

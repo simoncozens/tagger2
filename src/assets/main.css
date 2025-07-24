@@ -11,7 +11,7 @@ h1,h2,h3 { margin-top: 0; margin-bottom: 0; }
 .tag-info { color: #007ac0; }
 
 .tag-view { padding: 5px; border: 1px solid #eee; margin-bottom: 10px; }
-.tag-name { display: inline-block; width: 200px; font-family: monospace; font-weight: bold; }
+.tag-name { display: inline-block; min-width: 200px; font-family: monospace; font-weight: bold; }
 .tag-family { width: 200px; display: inline-block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .tag-score { padding-left: 20px; color: #888; }
 
@@ -19,3 +19,102 @@ h1,h2,h3 { margin-top: 0; margin-bottom: 0; }
 .panel { margin: 5px; padding: 5px; }
 
 .sample { font-size: 25pt; text-overflow: ellipsis; white-space: nowrap; overflow: hidden; width: 100%; margin-top: 5px; margin-bottom: 5px; }
+.compact-tag-view {
+    display: flex;
+    flex-direction: row;
+    align-items: baseline;
+}
+.compact-tag-view .tag-title .tag-score {
+    margin-right: 10px;
+    width: 30px;
+}
+
+.compact-tag-view .tag-title {
+    display: flex;
+}
+.compact-tag-view .text {
+    display: flex;
+    padding: 5px;
+}
+.compact-tag-view .tag-family {
+    width: inherit;
+}
+
+.exemplars {
+    display: flex;
+    flex-direction: row;
+    margin-top: 5px;
+    justify-content: space-between;
+    flex-wrap: wrap;
+
+}
+.exemplars > div {
+    background-color: #fafafa;
+    padding: 15px;
+    min-width: 120px;
+}
+
+.progressbar {
+  background-color: black;
+  border-radius: 13px;
+  padding: 3px;
+  height: 20px;
+}
+.progressbar .progress-text {
+  color: white;
+  text-align: center;
+  font-size: 14px;
+  margin-top: -20px; /* Adjust based on height of progress bar */
+}
+
+.progressbar .progress {
+  background-color: orange;
+  height: 20px;
+  border-radius: 10px;
+}
+#todo-wrapper h1, #todo-wrapper h3 { text-align: center;}
+
+.rangeslider {
+    width: 100%;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+}
+.rangeslider span {
+    position: relative;
+    margin: 15px -4px 0 0px;
+    flex-basis: 0;
+    flex-grow: 0;
+    text-align: center;
+    font-size: 0.85em;
+    user-select: none;
+}
+.rangeslider span:first-of-type {
+    margin-left: 15px;
+    margin-right: 0px;
+}
+.rangeslider span:last-of-type {
+    margin-right: 7px;
+
+}
+.rangeslider span::after {
+    content: "";
+    position: absolute;
+    width: 1px;
+    height: 8px;
+    left: 0;
+    right: 0;
+    margin: auto;
+    top: -12px;
+    background-color: #ccc;
+}
+.rangeslider input {
+    width: 100%;
+    margin: 5px 10px;
+    position: relative;
+    background-color: #ccc;
+    border-radius: 99px;
+    z-index: 10;
+    height: 7px;
+    -webkit-appearance: none;
+}

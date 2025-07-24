@@ -13,6 +13,12 @@ export type Location = {
   tagName: string; // Name of the tag, e.g. 'Weight'
 };
 
+export type Exemplars = {
+  high: FontTag[];
+  low: FontTag[];
+  medium: FontTag[];
+};
+
 export class FontTag {
   tagName: string;
   family: Font;
@@ -36,11 +42,11 @@ export class FontTag {
       .join(";");
     return `${this.tagName},${this.family.name},${locationCSV},${this.score}`;
   }
-  get cssStyle() {
+  cssStyle(fontSize = 32) {
     if (this.location.length === 0) {
-      return `font-family: ${this.family.name}; font-size: 32pt;`;
+      return `font-family: ${this.family.name}; font-size: ${fontSize}pt;`;
     }
-    let style = `font-family: "${this.family.name}", "Adobe NotDef"; font-size: 32pt; font-variation-settings:`;
+    let style = `font-family: "${this.family.name}", "Adobe NotDef"; font-size: ${fontSize}pt; font-variation-settings:`;
     for (let axis of this.location) {
       style += ` '${axis.tagName}' ${axis.value},`;
     }
@@ -76,13 +82,32 @@ export class TagDefinition {
     this.superShortDescription = superShortDescription;
     this.related = related;
   }
-  get exemplars() {
-    return this.related.map((tag) => {
-      return {
-        name: tag,
-        url: `https://fonts.google.com/specimen/${tag.replace(/ /g, "+")}`,
-      };
-    });
+  exemplars(tags: Tags): Exemplars {
+    const exemplars: Exemplars = {
+      high: [],
+      low: [],
+      medium: [],
+    };
+    for (const tag of tags.items) {
+      if (tag.tagName !== this.name) {
+        continue;
+      }
+      if (tag.score > 80) {
+        exemplars.high.push(tag);
+      } else if (tag.score <= 20) {
+        exemplars.low.push(tag);
+      } else if (exemplars.medium.length < 3) {
+        exemplars.medium.push(tag);
+      }
+    }
+    // Choose top three high
+    exemplars.high.sort((a, b) => b.score - a.score);
+    exemplars.high = exemplars.high.slice(0, 3);
+    // Choose lowest three low
+    exemplars.low.sort((a, b) => a.score - b.score);
+    exemplars.low = exemplars.low.slice(0, 3);
+    console.log(`Exemplars for ${this.name}:`, exemplars);
+    return exemplars;
   }
 }
 
@@ -98,11 +123,11 @@ export class Font {
   get isVF() {
     return this.axes.length > 0;
   }
-  get cssStyle() {
+  cssStyle(fontSize = 32) {
     if (!this.isVF) {
-      return `font-family: '${this.name}'; font-size: 32pt;`;
+      return `font-family: '${this.name}'; font-size: ${fontSize}pt;`;
     }
-    let res = `font-family: '${this.name}'; font-size: 32pt; font-variation-settings:`;
+    let res = `font-family: '${this.name}'; font-size: ${fontSize}pt; font-variation-settings:`;
     this.axes.forEach((axis) => {
       res += ` '${axis.tag}' ${axis.min}..${axis.max},`;
     });
@@ -149,6 +174,7 @@ export class Font {
 export class GF {
   familyData: { [key: string]: any }; // Object to hold family metadata
   families: Font[]; // Array to hold Font objects
+  loadedFamilies: Font[]; // We add families to the CSS on demand to speed up loading
   tagDefinitions: { [key: string]: TagDefinition }; // Object to hold tag definitions
   lintRules: LintRule[]; // Array to hold lint rules
   linter: any; // Linter instance
@@ -159,6 +185,7 @@ export class GF {
     this.tagDefinitions = {};
     this.lintRules = [];
     this.linter = linter;
+    this.loadedFamilies = [];
   }
   async getFamilyData() {
     let data = await loadText("family_data.json");
@@ -249,6 +276,13 @@ export class GF {
       .map((item) => item[0])
       .filter((familyName) => familyName !== name);
   }
+  ensureLoaded(family: string) {
+    // We could use a Set for this but Vue can't diff them
+    let font = this.families.find((f) => f.name === family);
+    if (font && !this.loadedFamilies.includes(font)) {
+      this.loadedFamilies.push(font);
+    }
+  }
 }
 
 export class Tags {
@@ -266,8 +300,25 @@ export class Tags {
     return this.items.map((tag) => tag.toCSV()).join("\n");
   }
   addTag(tagName: string, fontName: string, axes: any[], score: number) {
-    const tag = new FontTag(tagName, fontName, axes, score);
+    let family = this.gf.family(fontName);
+    if (family === undefined || family.name === undefined) {
+      console.warn("Family not found (adding tag):", fontName);
+      return;
+    }
+    if (this.has(tagName, fontName)) {
+      console.warn(
+        `Tag ${tagName} for font ${fontName} already exists. Skipping addition.`
+      );
+      return;
+    }
+    const tag = new FontTag(tagName, family, axes, score);
     this.items.push(tag);
+
+  }
+  has(tagName: string, fontName: string): boolean {
+    return this.items.some((tag) => {
+      return tag.tagName === tagName && tag.family.name === fontName;
+    });
   }
   sort() {
     this.items.sort((a, b) => a.tagName.localeCompare(b.tagName));
