@@ -4,8 +4,9 @@ import type { ComputedRef } from 'vue';
 import { GF, Tags, FontTag, FontTagGroup } from './models';
 import type { Panel } from './components/Panel.vue';
 import type { FilterSet } from './components/AddTags.vue';
+import { EventBus } from './eventbus';
 
-let loaded = ref(false);
+let appLoaded = ref(false);
 let gf = ref<GF | null>(null);
 let tags = ref<Tags | null>(null);
 let tagGroups = ref<FontTagGroup[]>([]);
@@ -84,7 +85,6 @@ onBeforeMount(async () => {
   await gf.value.getLintRules();
   await gf.value.getTagDefinitions();
   gf.value.loadFamilies();
-
   tags.value = new Tags(gf.value);
   tags.value.sortCategories();
   // Subscribe to events
@@ -98,29 +98,43 @@ onBeforeMount(async () => {
     tagGroup.addTag(tag1);
     tagGroup.addTag(tag2);
     tagGroups.value.push(tagGroup);
-    loaded.value = true;
   }
+
+  EventBus.$on('ensure-loaded', (family: string) => {
+    const font = gf.value?.families.find(f => f.name === family);
+    if (family && !gf.value?.loadedFamilies.includes(font!)) {
+      gf.value?.loadedFamilies.push(font!);
+    }
+  });
+
+  appLoaded.value = true;
+
 });
+
+
 </script>
 
 
 <template>
-  <div id="app" v-if="loaded">
-    <div id="fonts">
-      <link v-for="family in gf?.families" :href="family.url" rel="stylesheet">
+  <div id="app">
+    <div id="fonts" :key="gf?.loadedFamilies.length">
+      <link v-for="family in gf?.loadedFamilies" :href="family.url" rel="stylesheet">
     </div>
-    <button @click="addFontPanel('Maven Pro')">Tags in font</button>
-    <button @click="addCategoriesPanel(['/Expressive/Loud'])">Tags in category</button>
-    <add-tag :categories="categories" @tag-added="performAddTag"></add-tag>
-    <add-tags :categories="categories" @tags-added="performAddTags"></add-tags>
-    <add-category @category-added="performAddCategory"></add-category>
-    <div style="display: flex; flex-direction: row; width: 100vw; min-height: 100vh;">
-      <div v-for="(panel, idx) in panels" :key="idx"
-        :style="{ flex: '1 1 0', minWidth: 0, borderRight: idx < panels.length - 1 ? '1px solid #eee' : 'none', height: '100vh', overflow: 'auto' }">
-        <panel :panel="panel" :gf="gf" :tags="tags?.items || []" @remove-panel="removePanel(idx)"
-          @add-font-panel="addFontPanel" @update-tags="updateTags" @remove-tag="removeTag">
-        </panel>
+    <div id="content" v-if="appLoaded">
+      <button @click="addFontPanel('Maven Pro')">Tags in font</button>
+      <button @click="addCategoriesPanel(['/Expressive/Loud'])">Tags in category</button>
+      <add-tag :categories="categories" @tag-added="performAddTag"></add-tag>
+      <add-tags :categories="categories" @tags-added="performAddTags"></add-tags>
+      <add-category @category-added="performAddCategory"></add-category>
+      <div style="display: flex; flex-direction: row; width: 100vw; min-height: 100vh;">
+        <div v-for="(panel, idx) in panels" :key="idx"
+          :style="{ flex: '1 1 0', minWidth: 0, borderRight: idx < panels.length - 1 ? '1px solid #eee' : 'none', height: '100vh', overflow: 'auto' }">
+          <panel :panel="panel" :gf="gf" :tags="tags?.items || []" @remove-panel="removePanel(idx)"
+            @add-font-panel="addFontPanel" @update-tags="updateTags" @remove-tag="removeTag">
+          </panel>
+        </div>
       </div>
     </div>
+    <div v-else>Loading...</div>
   </div>
 </template>

@@ -149,6 +149,7 @@ export class Font {
 export class GF {
   familyData: { [key: string]: any }; // Object to hold family metadata
   families: Font[]; // Array to hold Font objects
+  loadedFamilies: Font[]; // We add families to the CSS on demand to speed up loading
   tagDefinitions: { [key: string]: TagDefinition }; // Object to hold tag definitions
   lintRules: LintRule[]; // Array to hold lint rules
   linter: any; // Linter instance
@@ -159,6 +160,7 @@ export class GF {
     this.tagDefinitions = {};
     this.lintRules = [];
     this.linter = linter;
+    this.loadedFamilies = [];
   }
   async getFamilyData() {
     let data = await loadText("family_data.json");

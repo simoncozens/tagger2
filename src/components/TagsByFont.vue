@@ -1,6 +1,7 @@
 <script setup lang="ts">
+import { EventBus } from '@/eventbus';
 import { FontTag, GF } from '@/models';
-import { computed, defineProps, getCurrentInstance, ref } from 'vue';
+import { computed, defineProps, onBeforeMount, ref } from 'vue';
 
 const props = defineProps({
   tags: {
@@ -65,6 +66,12 @@ function addFontPanel(font: string) {
   console.log("Emitting add-font-panel from TagsByFont for ", font);
   emit('add-font-panel', font);
 }
+
+onBeforeMount(() => {
+  // Ensure the font is included in the CSS
+  EventBus.$emit('ensure-loaded', font?.value);
+});
+
 </script>
 <template>
   <div>

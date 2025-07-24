@@ -1,10 +1,15 @@
 <script setup lang="ts">
-import { defineProps, onMounted, defineEmits } from 'vue';
-import { FontTag, GF } from '../models';
+import { defineProps, onBeforeMount } from 'vue';
+import { FontTag } from '../models';
+import { EventBus } from '@/eventbus';
 
 const props = defineProps({
     tag: FontTag,
-    gf: GF
+});
+
+
+onBeforeMount(() => {
+    EventBus.$emit('ensure-loaded', props.tag?.family.name);
 });
 
 const emit = defineEmits(['remove-tag']);
@@ -16,6 +21,7 @@ const removeTag = () => {
 }
 
 </script>
+
 
 <template>
     <div class="tag-view">
