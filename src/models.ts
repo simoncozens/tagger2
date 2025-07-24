@@ -1,6 +1,6 @@
 import { linter } from "./linter";
 import type { LintRule, Severity } from "./linter.js";
-import { loadText } from "./utils";
+import { loadText, parseCSV } from "./utils";
 
 export type Axis = {
   tag: string; // Axis tag, e.g. 'wght'
@@ -70,17 +70,23 @@ export class TagDefinition {
   description: string;
   superShortDescription: string;
   related: string[]; // Array of related tag names
+  lowestScore: number; // Lowest score for the tag, optional
+  highestScore: number; // Highest score for the tag, optional
 
   constructor(
     name: string,
     description: string,
     superShortDescription: string,
-    related: string[]
+    related: string[],
+    lowestScore: number,
+    highestScore: number
   ) {
     this.name = name;
     this.description = description;
     this.superShortDescription = superShortDescription;
     this.related = related;
+    this.lowestScore = lowestScore;
+    this.highestScore = highestScore;
   }
   exemplars(tags: Tags): Exemplars {
     const exemplars: Exemplars = {
@@ -202,38 +208,52 @@ export class GF {
   }
   async getLintRules() {
     let data = await loadText("tag_rules.csv");
-    const lines = data.split("\n");
-    for (let line of lines) {
-      if (line.startsWith("#") || line.trim() === "") {
-        continue;
-      }
-      let [rule, severity, description] = line.split(",");
-      description = description.replace(/^"(.*)"$/, "$1");
-      if (!rule || !description || !severity) {
-        console.warn("Skipping line due to missing fields:", line);
-        continue;
-      }
+    let csvData = parseCSV(data, "rule", "severity", "description");
+
+    for (let item of csvData) {
       this.lintRules.push({
-        rule: rule.trim(),
-        description: description.trim(),
-        severity: severity.trim() as Severity,
+        rule: item.rule.trim(),
+        description: item.description.trim(),
+        severity: item.severity.trim() as Severity,
       });
     }
   }
   async getTagDefinitions() {
     let data = await loadText("tag_definitions.json");
     this.tagDefinitions = JSON.parse(data);
-    for (let tagName in this.tagDefinitions) {
-      const tagDef = this.tagDefinitions[tagName];
-      this.tagDefinitions[tagName] = new TagDefinition(
-        tagName,
-        tagDef.description,
-        tagDef.superShortDescription,
-        tagDef.related || []
-      );
+    
+    let tagScoreData = await loadText("tags_metadata.csv");
+    let csvData = parseCSV(tagScoreData, "name", "lowScore", "highScore", "description");
+
+    for (let category of csvData) {
+      const tagDef = this.tagDefinitions[category.name];
+      // TODO all categories should be listed in the .json file
+      if (!category.name || !this.tagDefinitions[category.name]) {
+        this.tagDefinitions[category.name] = new TagDefinition(
+          category.name.trim(),
+          "",
+          "",
+          [],
+          0,
+          100
+        );
+      } else {
+        this.tagDefinitions[category.name] = new TagDefinition(
+          category.name.trim(),
+          tagDef.description || "",
+          tagDef.superShortDescription || "",
+          tagDef.related || [],
+          Number(category.lowScore),
+          Number(category.highScore)
+        );
+      }     
     }
   }
-
+  get sortedTagDefinitions() {
+    return Object.keys(this.tagDefinitions).sort((a, b) => {
+      return a.localeCompare(b);
+    });
+  } 
   loadFamilies() {
     for (let familyName in this.familyData) {
       const axes = [];
@@ -288,13 +308,11 @@ export class GF {
 export class Tags {
   gf: GF; // Reference to the GF instance
   items: FontTag[]; // Array to hold FontTag objects
-  categories: string[]; // Array to hold unique tag names (categories)
 
   constructor(gf: GF) {
     this.gf = gf;
     this.items = [];
     this.loadTags();
-    this.categories = [];
   }
   toCSV() {
     return this.items.map((tag) => tag.toCSV()).join("\n");
@@ -323,9 +341,6 @@ export class Tags {
   sort() {
     this.items.sort((a, b) => a.tagName.localeCompare(b.tagName));
   }
-  sortCategories() {
-    this.categories.sort((a, b) => a.localeCompare(b));
-  }
   loadTags(commit?: string) {
     if (commit === undefined) {
       commit = "refs/head/main"; // Default to main branch if no commit is specified
@@ -350,9 +365,6 @@ export class Tags {
         }
         const tag = new FontTag(tagName, family, [], score);
         this.items.push(tag);
-        if (!this.categories.includes(tag.tagName)) {
-          this.categories.push(tag.tagName);
-        }
       }
     });
   }

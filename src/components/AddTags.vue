@@ -18,7 +18,12 @@ import { Font } from "../models";
 import { computed, defineProps, ref, defineEmits } from 'vue';
 
 
-const props = defineProps({ categories: Array as () => string[] })
+const props = defineProps({ 
+    gf: {
+        type: Object,
+        required: true
+    }
+});
 const emit = defineEmits(['tags-added']);
 
 let currentCategories = ref<string[]>([]);
@@ -87,8 +92,8 @@ function addTags() {
         <div>
             <h3>Categories</h3>
             <select v-model="currentCategories" multiple>
-                <option v-for="category in categories" :key="category">
-                    {{ category }}
+                <option v-for="definition in Object.keys(gf.tagDefinitions).sort()">
+                    {{ definition }}
                 </option>
             </select>
             <h3>Low Tag:</h3>

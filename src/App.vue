@@ -8,16 +8,13 @@ import { EventBus } from './eventbus';
 
 let appLoaded = ref(false);
 let gf = ref<GF | null>(null);
+window.gf = gf;
 let tags = ref<Tags | null>(null);
 let tagGroups = ref<FontTagGroup[]>([]);
 let panels = ref<Panel[]>([
   { type: 'font', font: 'Roboto' },
   { type: 'categories', categories: ['/Expressive/Loud', '/Expressive/Childlike'], tagGroups: [] }
 ]);
-
-let categories: ComputedRef<string[]> = computed(() => {
-  return tags.value ? tags.value.categories : [] as string[];
-});
 
 function performAddTag(tag: FontTag) {
   if (!tags.value) return;
@@ -67,7 +64,7 @@ function addTodoPanel() {
 }
 function addCategoriesPanel(categories: string[]) {
   panels.value.push({
-    type: 'categories', categories, tagGroups: tagGroups.value
+    type: 'categories', tagGroups: tagGroups.value
   });
 }
 function removePanel(idx: number) { panels.value.splice(idx, 1); }
@@ -89,7 +86,6 @@ onBeforeMount(async () => {
   await gf.value.getTagDefinitions();
   gf.value.loadFamilies();
   tags.value = new Tags(gf.value);
-  tags.value.sortCategories();
   // Subscribe to events
   const family = gf.value.families.find(f => f.name === 'Maven Pro');
   if (!family) {
