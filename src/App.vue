@@ -62,6 +62,9 @@ function performAddCategory(category: string) {
 function addFontPanel(font: string) {
   panels.value.push({ type: 'font', font });
 }
+function addTodoPanel() {
+  panels.value.push({ type: 'todo' });
+}
 function addCategoriesPanel(categories: string[]) {
   panels.value.push({
     type: 'categories', categories, tagGroups: tagGroups.value
@@ -124,6 +127,7 @@ onBeforeMount(async () => {
     <div id="content" v-if="appLoaded">
       <button @click="addFontPanel('Maven Pro')">Tags in font</button>
       <button @click="addCategoriesPanel(['/Expressive/Loud'])">Tags in category</button>
+      <button @click="addTodoPanel()">Todo List</button>
       <add-tag :categories="categories" @tag-added="performAddTag"></add-tag>
       <add-tags :categories="categories" @tags-added="performAddTags"></add-tags>
       <add-category @category-added="performAddCategory"></add-category>

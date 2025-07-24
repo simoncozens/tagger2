@@ -11,7 +11,10 @@ type CategoriesPanel = {
   categories: string[]; // Array of category names
   tagGroups: FontTagGroup[]; // Array of FontTagGroup objects
 };
-export type Panel = FontPanel | CategoriesPanel; // Union type for panel
+type TodoPanel = {
+  type: "todo"; // Type of panel
+};
+export type Panel = FontPanel | CategoriesPanel | TodoPanel; // Union type for panel
 
 const props = defineProps<{
   panel: Panel,
@@ -48,5 +51,6 @@ onMounted(() => {
     <tags-by-font v-if="panel.type === 'font'" :tags="tags.items" :font="panel.font" :gf="gf"></tags-by-font>
     <tags-by-categories v-else-if="panel.type === 'categories'" :tags="tags.items" :categories="panel.categories"
       :tagGroups="panel.tagGroups" :gf="gf"></tags-by-categories>
+    <todo v-else-if="panel.type === 'todo'" :gf="gf" :tags="tags"></todo>
   </div>
 </template>
