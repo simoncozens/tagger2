@@ -12,11 +12,9 @@ onBeforeMount(() => {
     EventBus.$emit('ensure-loaded', props.tag?.family.name);
 });
 
-const emit = defineEmits(['remove-tag']);
-
 const removeTag = () => {
     if (props.tag) {
-        emit('remove-tag', props.tag);
+        EventBus.$emit('remove-tag', props.tag);
     }
 }
 
