@@ -251,6 +251,13 @@ export class GF {
       .map((item) => item[0])
       .filter((familyName) => familyName !== name);
   }
+  ensureLoaded(family: string) {
+    // We could use a Set for this but Vue can't diff them
+    let font = this.families.find((f) => f.name === family);
+    if (font && !this.loadedFamilies.includes(font)) {
+      this.loadedFamilies.push(font);
+    }
+  }
 }
 
 export class Tags {

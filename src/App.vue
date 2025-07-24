@@ -101,10 +101,7 @@ onBeforeMount(async () => {
   }
 
   EventBus.$on('ensure-loaded', (family: string) => {
-    const font = gf.value?.families.find(f => f.name === family);
-    if (family && !gf.value?.loadedFamilies.includes(font!)) {
-      gf.value?.loadedFamilies.push(font!);
-    }
+    gf.value?.ensureLoaded(family);
   });
 
   EventBus.$on('add-font-panel', addFontPanel);

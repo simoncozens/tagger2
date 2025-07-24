@@ -68,7 +68,10 @@ function addFontPanel(font: string) {
 
 onBeforeMount(() => {
   // Ensure the font is included in the CSS
-  EventBus.$emit('ensure-loaded', font?.value);
+  EventBus.$emit('ensure-loaded', font?.value)
+  similarFamilies.value.forEach(family => {
+    props.gf?.ensureLoaded(family);
+  });
 });
 
 </script>
