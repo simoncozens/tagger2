@@ -95,7 +95,7 @@ onBeforeMount(() => {
         <input type="range" v-model="axis.value" :min="axis.min" :max="axis.max" />
     </div>
     <ul>
-      <li v-for="tag in filteredTags" :key="tag.tagName + tag.family.name + tag.score">
+      <li v-for="tag in filteredTags" :key="tag.tagName + tag.family.name">
         <span class="tag-name">{{ tag.tagName }}
           <svg xmlns="http://www.w3.org/2000/svg" height="22px" viewBox="0 -1000 960 960" width="24px" fill="#000000"
             v-if="props.gf?.tagDefinitions[tag.tagName]">
