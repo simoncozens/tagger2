@@ -1,13 +1,10 @@
 <script setup lang="ts">
 import { EventBus } from '@/eventbus';
-import { Tagging, GF } from '@/models';
+import { GF } from '@/models';
+import type { Tagging } from '@/models';
 import { computed, defineProps, onBeforeUpdate, ref } from 'vue';
 
 const props = defineProps({
-  tags: {
-    type: Array as () => Tagging[],
-    required: true
-  },
   font: {
     type: String,
     required: true
@@ -45,17 +42,13 @@ const cssStyle = computed(() => {
 });
 
 
-const filteredTags = computed(() => {
-  // Assumes each tag has a property 'family' with a 'name'
-  return props.tags.filter(tag => tag.family && tag.family.name === font.value);
-});
-
 const similarFamilies = computed(() => {
   return props.gf.similarFamilies(font.value, 10) || [];
 });
 
 const lintErrors = computed(() => {
-  return props.gf.linter(props.gf.lintRules, font.value, filteredTags.value) || [];
+  if (!selectedFamily.value) return [];
+  return props.gf.linter(props.gf.lintRules, selectedFamily.value) || [];
 });
 
 function removeTag(tag: Tagging) {
@@ -79,10 +72,8 @@ onBeforeUpdate(() => {
   <div>
     <h3>Tags for:</h3>
     <select v-model="font">
-      <option
-        v-for="tag in tags.map(tag => tag.family.name).filter((value, index, self) => self.indexOf(value) === index)"
-        :key="tag">
-        {{ tag }}
+      <option v-for="family in gf.families" :key="family.name">
+        {{ family.name }}
       </option>
     </select>
     <div>
@@ -97,15 +88,14 @@ onBeforeUpdate(() => {
       <input type="range" v-model="axis.value" :min="axis.min" :max="axis.max" />
     </div>
     <ul>
-      <li v-for="tag in filteredTags" :key="tag.tagName + tag.family.name">
-        <span class="tag-name">{{ tag.tagName }}
-          <svg xmlns="http://www.w3.org/2000/svg" height="22px" viewBox="0 -1000 960 960" width="24px" fill="#000000"
-            v-if="props.gf?.tagDefinitions[tag.tagName]">
+      <li v-for="tag in selectedFamily?.taggings" :key="tag.tag.name + selectedFamily?.name">
+        <span class="tag-name">{{ tag.tag.name }}
+          <svg xmlns="http://www.w3.org/2000/svg" height="22px" viewBox="0 -1000 960 960" width="24px" fill="#000000">
             <path
               d="M440-280h80v-240h-80v240Zm40-320q17 0 28.5-11.5T520-640q0-17-11.5-28.5T480-680q-17 0-28.5 11.5T440-640q0 17 11.5 28.5T480-600Zm0 520q-83 0-156-31.5T197-197q-54-54-85.5-127T80-480q0-83 31.5-156T197-763q54-54 127-85.5T480-880q83 0 156 31.5T763-763q54 54 85.5 127T880-480q0 83-31.5 156T763-197q-54 54-127 85.5T480-80Z" />
           </svg>
         </span>
-        <input type="number" v-model="tag.score" @change="EventBus.$emit('update:tags', tags)" />
+        <input type="number" v-model="tag.score" @change="EventBus.$emit('update:tags', selectedFamily?.taggings)" />
         <button @click="removeTag(tag)">Remove</button>
       </li>
     </ul>

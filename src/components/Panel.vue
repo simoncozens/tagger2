@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Taggings, Font, FontTagGroup, GF } from "../models";
+import type { GF } from "../models";
 import { defineProps, defineEmits, onMounted } from "vue";
 
 type FontPanel = {
@@ -9,7 +9,7 @@ type FontPanel = {
 type CategoriesPanel = {
   type: "categories"; // Type of panel
   categories: string[]; // Array of category names
-  tagGroups: FontTagGroup[]; // Array of FontTagGroup objects
+  // tagGroups: FontTagGroup[]; // Array of FontTagGroup objects
 };
 type TodoPanel = {
   type: "todo"; // Type of panel
@@ -18,7 +18,6 @@ export type Panel = FontPanel | CategoriesPanel | TodoPanel; // Union type for p
 
 const props = defineProps<{
   panel: Panel,
-  tags: Taggings,
   gf: GF,
 }>();
 const emit = defineEmits(["remove-panel"]);
@@ -34,7 +33,7 @@ onMounted(() => {
     target: '.tag-name svg',
     content: (r) => {
       const tagName = r.closest('.tag-name')?.textContent?.trim() || '';
-      return props.gf?.tagDefinitions[tagName]?.description || `No description available for ${tagName}`;
+      return props.gf?.tags[tagName]?.description || `No description available for ${tagName}`;
     },
     allowHTML: true,
     placement: 'top',
@@ -48,9 +47,9 @@ onMounted(() => {
 <template>
   <div class="panel" style="border:1px solid #ccc; padding:1em; margin-bottom:1em;">
     <button @click="emit('remove-panel')" style="float:right">✕</button>
-    <tags-by-font v-if="panel.type === 'font'" :tags="tags.items" :font="panel.font" :gf="gf"></tags-by-font>
-    <tags-by-categories v-else-if="panel.type === 'categories'" :tags="tags.items" :categories="panel.categories"
-      :tagGroups="panel.tagGroups" :gf="gf"></tags-by-categories>
-    <todo v-else-if="panel.type === 'todo'" :gf="gf" :tags="tags"></todo>
+    <tags-by-font v-if="panel.type === 'font'" :font="panel.font" :gf="gf"></tags-by-font>
+    <tags-by-categories v-else-if="panel.type === 'categories'" :categories="panel.categories"
+      :gf="gf"></tags-by-categories>
+    <todo v-else-if="panel.type === 'todo'" :gf="gf"></todo>
   </div>
 </template>

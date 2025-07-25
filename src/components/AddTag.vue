@@ -1,5 +1,5 @@
 <script lang="ts">
-import { Tagging } from "../models";
+import type { Tagging } from "../models";
 
 interface Position {
     coordinate: number;

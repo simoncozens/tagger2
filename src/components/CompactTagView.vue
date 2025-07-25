@@ -1,14 +1,18 @@
 <script setup lang="ts">
 import { defineProps, onBeforeMount } from 'vue';
-import { Tagging } from '../models';
+import type { PropType } from 'vue';
+import { Font } from '../models';
+import type { Location, StaticTagging } from '../models';
 import { EventBus } from '@/eventbus';
 
 const props = defineProps({
-    tag: Tagging,
+    family: Font,
+    tag: Object as PropType<StaticTagging>,
+    location: Object as PropType<Location>,
 });
 
 onBeforeMount(() => {
-    EventBus.$emit('ensure-loaded', props.tag?.family.name);
+    EventBus.$emit('ensure-loaded', props.family?.name);
 });
 </script>
 
@@ -17,11 +21,11 @@ onBeforeMount(() => {
     <div class="compact-tag-view">
         <div class="tag-title">
             <span class="tag-score" v-if="props.tag">
-                {{ props.tag.score }}
+                {{ props.tag?.score }}
             </span>
-            <span class="tag-family">{{ props.tag?.family.name }}</span>
+            <span class="tag-family">{{ props.family?.name }}</span>
         </div>
-        <div class="text" contenteditable="true" :style="props.tag?.cssStyle(18)">
+        <div class="text" contenteditable="true" :style="props.family?.cssStyle(18)">
             Hello world
         </div>
     </div>

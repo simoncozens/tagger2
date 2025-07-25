@@ -1,4 +1,4 @@
-<script>
+<script lang="ts">
 export default {
   props: ['tags', 'tagGroups', "gf"],
   data() {
@@ -36,9 +36,9 @@ export default {
         filtered = filtered.sort((a, b) => {
           const aVal = Number(familyData[a.family.name]?.[this.sortBy]) || 0;
           const bVal = Number(familyData[b.family.name]?.[this.sortBy]) || 0;
-        if (aVal < bVal) return -1;
-        if (aVal > bVal) return 1;
-        return 0;
+          if (aVal < bVal) return -1;
+          if (aVal > bVal) return 1;
+          return 0;
         });
       }
 
