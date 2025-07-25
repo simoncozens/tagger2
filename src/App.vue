@@ -125,7 +125,6 @@ onBeforeMount(async () => {
       <button @click="addTodoPanel()">Todo List</button>
       <add-tag :categories="categories" @tag-added="performAddTag"></add-tag>
       <add-tags :categories="categories" @tags-added="performAddTags"></add-tags>
-      <add-category @category-added="performAddCategory"></add-category>
       <div style="display: flex; flex-direction: row; width: 100vw; min-height: 100vh;">
         <div v-for="(panel, idx) in panels" :key="idx"
           :style="{ flex: '1 1 0', minWidth: 0, borderRight: idx < panels.length - 1 ? '1px solid #eee' : 'none', height: '100vh', overflow: 'auto' }">
