@@ -15,7 +15,12 @@ interface AxisSet {
 }
 
 export default {
-    props: ["categories"],
+    props: {
+        gf: {
+            type: Object,
+            required: true
+        }
+    },
     data: function () {
         return {
             category: "",
@@ -91,8 +96,8 @@ export default {
         <input type="checkbox" v-model="isVF" value="true" /> Variable Font
         <h3>Category</h3>
         <select v-model="category">
-            <option v-for="category in categories" :key="category">
-                {{ category }}
+            <option v-for="definition in Object.keys(gf.tagDefinitions).sort()">
+                {{ definition }}
             </option>
         </select>
         <h3>Family</h3>

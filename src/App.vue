@@ -8,16 +8,13 @@ import { EventBus } from './eventbus';
 
 let appLoaded = ref(false);
 let gf = ref<GF | null>(null);
+window.gf = gf;
 let tags = ref<Tags | null>(null);
 let tagGroups = ref<FontTagGroup[]>([]);
 let panels = ref<Panel[]>([
   { type: 'font', font: 'Roboto' },
   { type: 'categories', categories: ['/Expressive/Loud', '/Expressive/Childlike'], tagGroups: [] }
 ]);
-
-let categories: ComputedRef<string[]> = computed(() => {
-  return tags.value ? tags.value.categories : [] as string[];
-});
 
 function performAddTag(tag: FontTag) {
   if (!tags.value) return;
@@ -65,9 +62,9 @@ function addFontPanel(font: string) {
 function addTodoPanel() {
   panels.value.push({ type: 'todo' });
 }
-function addCategoriesPanel(categories: string[]) {
+function addCategoriesPanel() {
   panels.value.push({
-    type: 'categories', categories, tagGroups: tagGroups.value
+    type: 'categories', tagGroups: tagGroups.value
   });
 }
 function removePanel(idx: number) { panels.value.splice(idx, 1); }
@@ -79,7 +76,6 @@ function removeTag(tag: FontTag) {
 }
 function updateTags(newTags: Tags) {
   tags.value = newTags;
-  tags.value.sortCategories();
 }
 
 onBeforeMount(async () => {
@@ -89,7 +85,6 @@ onBeforeMount(async () => {
   await gf.value.getTagDefinitions();
   gf.value.loadFamilies();
   tags.value = new Tags(gf.value);
-  tags.value.sortCategories();
   // Subscribe to events
   const family = gf.value.families.find(f => f.name === 'Maven Pro');
   if (!family) {
@@ -130,7 +125,6 @@ onBeforeMount(async () => {
       <button @click="addTodoPanel()">Todo List</button>
       <add-tag :categories="categories" @tag-added="performAddTag"></add-tag>
       <add-tags :categories="categories" @tags-added="performAddTags"></add-tags>
-      <add-category @category-added="performAddCategory"></add-category>
       <div style="display: flex; flex-direction: row; width: 100vw; min-height: 100vh;">
         <div v-for="(panel, idx) in panels" :key="idx"
           :style="{ flex: '1 1 0', minWidth: 0, borderRight: idx < panels.length - 1 ? '1px solid #eee' : 'none', height: '100vh', overflow: 'auto' }">

@@ -1,9 +1,9 @@
 <script>
 export default {
-  props: ['tags', 'categories', 'tagGroups'],
+  props: ['tags', 'tagGroups', "gf"],
   data() {
     return {
-      selectedCategories: [...this.categories],
+      selectedCategories: [],
       sortBy: 'family', // Default sorting option
       tagFilter: '',
       reverseTags: false
@@ -45,7 +45,6 @@ export default {
 
       if (this.tagFilter !== "") {
         const myRegex = new RegExp(this.tagFilter, "i");
-        debugger;
         filtered = filtered.filter(tag => myRegex.test(tag.family.name));
       }
       if (this.reverseTags) {
@@ -53,12 +52,6 @@ export default {
       }
       return filtered;
     },
-    sortedCategories() {
-      const res = this.tags.map(tag => tag.tagName)
-        .filter((value, index, self) => self.indexOf(value) === index)
-        .sort();
-      return res;
-    }
   },
   methods: {
     removeTag(tag) {
@@ -72,7 +65,7 @@ export default {
     <h3>Tags for categories:</h3>
     <div>
       <select v-model="selectedCategories" multiple>
-        <option v-for="category in sortedCategories" :key="category">
+        <option v-for="category in Object.keys(gf.tagDefinitions).sort()">
           {{ category }}
         </option>
       </select>
