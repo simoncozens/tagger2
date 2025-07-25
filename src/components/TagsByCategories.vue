@@ -20,7 +20,7 @@ const sortBy = ref('family'); // Default sorting option
 const tagFilter = ref('');
 const reverseTags = ref(false);
 
-const filteredTags: ComputedRef<Tagging[]> = computed(() => {
+const filteredTaggings: ComputedRef<Tagging[]> = computed(() => {
   let filtered = props.gf?.allTaggings.filter(tagging =>
     selectedCategories.value.includes(tagging.tag.name)
   ) || [];
@@ -78,8 +78,8 @@ const filteredTags: ComputedRef<Tagging[]> = computed(() => {
       </button>
       <input type="text" v-model="tagFilter" placeholder="Filter tags by name" />
     </div>
-    <div v-for="tag in filteredTags" :key="tag.font.name + tag.tag.name + tag.score">
-      <tag-view :tag="tag"></tag-view>
+    <div v-for="tagging in filteredTaggings" :key="tagging.font.name + tagging.tag.name + tagging.score">
+      <tag-view :tagging="tagging"></tag-view>
     </div>
   </div>
 </template>
