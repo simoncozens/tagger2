@@ -66,6 +66,18 @@ function addCategoriesPanel(categories: string[]) {
   });
 }
 function removePanel(idx: number) { panels.value.splice(idx, 1); }
+function shiftLeft(idx: number) {
+  if (idx > 0) {
+    const panel = panels.value.splice(idx, 1)[0];
+    panels.value.splice(idx - 1, 0, panel);
+  }
+}
+function shiftRight(idx: number) {
+  if (idx < panels.value.length - 1) {
+    const panel = panels.value.splice(idx, 1)[0];
+    panels.value.splice(idx + 1, 0, panel);
+  }
+}
 function removeTag(tag: Tagging) {
   // const index = tags.value!.items.indexOf(tag);
   // if (index !== -1) {
@@ -127,7 +139,8 @@ onBeforeMount(async () => {
       <div style="display: flex; flex-direction: row; width: 100vw; min-height: 100vh;">
         <div v-for="(panel, idx) in panels" :key="idx"
           :style="{ flex: '1 1 0', minWidth: 0, borderRight: idx < panels.length - 1 ? '1px solid #eee' : 'none', height: '100vh', overflow: 'auto' }">
-          <panel :panel="panel" :gf="gf" @remove-panel="removePanel(idx)">
+          <panel :panel="panel" :gf="gf" :idx="idx" @remove-panel="removePanel(idx)" @shift-left="shiftLeft(idx)"
+            @shift-right="shiftRight(idx)">
           </panel>
         </div>
       </div>
