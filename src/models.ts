@@ -35,6 +35,23 @@ export class Tag {
     this.lowestScore = lowestScore;
     this.highestScore = highestScore;
   }
+  get friendlyName() {
+    const [_, area, category] = this.name.split("/");
+    if (area == "Sans" || area == "Serif" || area == "Script") {
+      return `${category} ${area.toLowerCase()}`;
+    }
+    if (area == "Theme" || area == "Expressive" || area == "Purpose") {
+      return category.toLowerCase();
+    }
+    if (area == "Quality") {
+      return `High-Quality ${category.toLowerCase()}`;
+    }
+    if (area == "Seasonal" || area == "Special use") {
+      return `${category} (${area.toLowerCase()})`;
+    }
+
+    return this.name;
+  }
   exemplars(gf: GF): Exemplars {
     if (this._exemplars) {
       return this._exemplars; // Return cached exemplars if available

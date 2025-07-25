@@ -7,7 +7,7 @@ import { computed, defineProps, ref } from 'vue';
 interface Untagged {
     font: Font;
     tagname: string;
-    tag_definition: Tag;
+    tag: Tag;
     exemplars: Exemplars
 }
 
@@ -40,7 +40,7 @@ function useRefreshable<T>(getter: () => T): {
 const tagNames = computed(() => {
     return props.gf.uniqueTagNames().filter(tagName => {
         // Don't include '/Quant/'
-        return !tagName.startsWith('/Quant/');
+        return !tagName.startsWith('/quant/');
     });
 });
 
@@ -63,13 +63,17 @@ function getNextUntagged(): Untagged | null {
         const family = families[Math.floor(Math.random() * families.length)];
         // Grab a random tagname
         const tagname = uniqueTags[Math.floor(Math.random() * uniqueTags.length)];
+        if (!props.gf.tags[tagname]) {
+            console.warn("Tag with no definition!!", tagname);
+            continue
+        }
         // If the family is not tagged with the tagname, return it
         if (!family.hasTagging(tagname)) {
             EventBus.$emit('ensure-loaded', family.name);
             return {
                 font: family,
                 tagname: tagname,
-                tag_definition: props.gf.tags[tagname],
+                tag: props.gf.tags[tagname],
                 exemplars: props.gf.tags[tagname].exemplars(props.gf)
             };
         }
@@ -113,38 +117,34 @@ const randomUntagged = computed(randomUntaggedRefreshable.getter);
             <h1>Is
                 <span class="family" :style="{ fontFamily: randomUntagged.font.name }">{{ randomUntagged.font.name
                 }}</span>
-                &nbsp;<span class="tag-name">{{ randomUntagged.tagname
-                    }}</span>?
+                a {{ randomUntagged.tag.friendlyName }} font?
+
             </h1>
-            <h3>({{ randomUntagged.tag_definition.superShortDescription }})</h3>
+            <h3 v-if="randomUntagged.tag.superShortDescription">({{ randomUntagged.tag.superShortDescription }})</h3>
 
             <div class="sample" contenteditable="true" :style="{ fontFamily: randomUntagged.font.name }"
                 style="border: 1px solid #ccc; padding: 1em;">
                 Grumpy wizards make toxic brew for the evil Queen and Jack.
             </div>
 
-            <p v-html="randomUntagged.tag_definition.description"></p>
+            <p v-html="randomUntagged.tag.description"></p>
 
             <div class="exemplars">
-                <div class="exemplars-low">
-                    <h3 v-if="randomUntagged.exemplars.low.length">Examples of <i>low</i> {{ randomUntagged.tagname
-                        }}</h3>
+                <div class="exemplars-low" v-if="randomUntagged.exemplars.low.length">
+                    <h3>Examples of <i>low</i> {{ randomUntagged.tagname }}</h3>
                     <div v-for="tagging in randomUntagged.exemplars.low"
                         :key="tagging.font.name + tagging.tag.name + tagging.score">
                         <compact-tag-view :tag="tagging"></compact-tag-view>
                     </div>
                 </div>
-                <div class="exemplars-medium">
-                    <h3 v-if="randomUntagged.exemplars.medium.length">Examples of <i>medium</i> {{
-                        randomUntagged.tagname
-                        }}</h3>
+                <div class="exemplars-medium" v-if="randomUntagged.exemplars.medium.length">
+                    <h3>Examples of <i>medium</i> {{ randomUntagged.tagname }}</h3>
                     <div v-for="tag in randomUntagged.exemplars.medium" :key="tag.font.name + tag.tag.name + tag.score">
                         <compact-tag-view :tag="tag"></compact-tag-view>
                     </div>
                 </div>
-                <div class="exemplars-high">
-                    <h3 v-if="randomUntagged.exemplars.high.length">Examples of <i>high</i> {{ randomUntagged.tagname
-                        }}</h3>
+                <div class="exemplars-high" v-if="randomUntagged.exemplars.high.length">
+                    <h3>Examples of <i>high</i> {{ randomUntagged.tagname }}</h3>
                     <div v-for="tag in randomUntagged.exemplars.high" :key="tag.font.name + tag.tag.name + tag.score">
                         <compact-tag-view :tag="tag"></compact-tag-view>
                     </div>
