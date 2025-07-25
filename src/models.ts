@@ -103,13 +103,14 @@ export class VariableTagging {
     this.scores = scores;
   }
   // Get the score for a specific location
-  scoreAt(location: Location): number {
+  scoreAt(location: Location): number | undefined {
     const scoreEntry = this.scores.find((s) => {
-      return Object.keys(s.location).every(
-        (key) => s.location[key] === location[key]
-      );
+      // ({"wght": 400}) != ({"wght": 400}) because it's not the same object
+      // EVEN THOUGH WE DID NOT ASK FOR STRICT EQUALITY WITH !==
+      // JAVASCRIPT WHAT IS WRONG WITH YOU
+      return JSON.stringify(s.location) == JSON.stringify(location);
     });
-    return scoreEntry ? scoreEntry.score : 0; // Return 0 if no score found
+    return scoreEntry ? scoreEntry.score : undefined;
   }
   // Just get a score, I don't care
   get score(): number {
