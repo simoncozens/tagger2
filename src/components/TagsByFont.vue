@@ -89,11 +89,7 @@ onBeforeUpdate(() => {
 <template>
   <div>
     <h3>Tags for:</h3>
-    <select v-model="font">
-      <option v-for="family in gf.families" :key="family.name">
-        {{ family.name }}
-      </option>
-    </select>
+    <v-select v-model="font" :options="props.gf.families.map(f => f.name)"></v-select>
     <div>
       <label>Font size:</label>
       <input type="range" v-model="fontSize" min="8" max="100" default="32" /> {{ fontSize }}pt

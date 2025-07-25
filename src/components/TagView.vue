@@ -9,15 +9,8 @@ const props = defineProps({
     location: Object as PropType<Location>, // For one day when we handle variable taggings
 });
 
-onBeforeMount(() => {
-    EventBus.$emit('ensure-loaded', props.tagging?.font.name);
-});
-
-const removeTagging = () => {
-    if (props.tagging) {
-        props.tagging.font.removeTagging(props.tagging);
-    }
-}
+onBeforeMount(() => { EventBus.$emit('ensure-loaded', props.tagging?.font.name); });
+const removeTagging = () => { props.tagging?.font.removeTagging(props.tagging) }
 
 </script>
 

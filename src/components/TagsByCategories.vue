@@ -61,11 +61,7 @@ const filteredTaggings: ComputedRef<Tagging[]> = computed(() => {
   <div>
     <h3>Tags for categories:</h3>
     <div>
-      <select v-model="selectedCategories" multiple>
-        <option v-for="category in gf.uniqueTagNames().sort()">
-          {{ category }}
-        </option>
-      </select>
+      <v-select v-model="selectedCategories" multiple :options="gf.uniqueTagNames().sort()"></v-select>
       <label for="sortBy">Sort by:</label>
       <select id="sortBy" v-model="sortBy">
         <option value="family">Family</option>
