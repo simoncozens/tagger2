@@ -120,3 +120,9 @@ h1,h2,h3 { margin-top: 0; margin-bottom: 0; }
 }
 
 .undefined { color: #888; }
+.inline-block { display: inline-block; }
+.vf-tag-axis {
+    padding: 5px;
+    margin: 5px;
+    border: 1px solid #ddd;
+}
