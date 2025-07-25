@@ -18,6 +18,7 @@ export class Tag {
   related: string[]; // Array of related tag names
   lowestScore: number; // Lowest score for the tag, optional
   highestScore: number; // Highest score for the tag, optional
+  _exemplars?: Exemplars; // Optional exemplars, not used in constructor
 
   constructor(
     name: string,
@@ -35,6 +36,9 @@ export class Tag {
     this.highestScore = highestScore;
   }
   exemplars(gf: GF): Exemplars {
+    if (this._exemplars) {
+      return this._exemplars; // Return cached exemplars if available
+    }
     const exemplars: Exemplars = {
       high: [],
       low: [],
@@ -53,7 +57,11 @@ export class Tag {
         exemplars.high.push(tagging);
       } else if (tagging.score <= 20) {
         exemplars.low.push(tagging);
-      } else if (exemplars.medium.length < 3) {
+      } else if (
+        tagging.score > 33 &&
+        tagging.score < 66 &&
+        exemplars.medium.length < 3
+      ) {
         exemplars.medium.push(tagging);
       }
     }
@@ -64,6 +72,8 @@ export class Tag {
     exemplars.low.sort((a, b) => a.score - b.score);
     exemplars.low = exemplars.low.slice(0, 3);
     console.log(`Exemplars for ${this.name}:`, exemplars);
+    // Cache the exemplars
+    this._exemplars = exemplars;
     return exemplars;
   }
 }
@@ -163,6 +173,10 @@ export class Font {
       return;
     }
     this.taggings.push(tagging);
+  }
+
+  removeTagging(tagging: Tagging) {
+    this.taggings = this.taggings.filter((t) => t !== tagging);
   }
 
   get url() {
@@ -310,13 +324,13 @@ export class GF {
   family(name: string) {
     return this.families.find((family) => family.name === name);
   }
-  similarFamilies(name: string, count = 10) {
+  similarFamilies(name: string, count = 10): string[] {
     const family = this.familyData[name];
     if (!family || !family.style) {
       console.warn(`Family not found (in similar): ${name}`);
       return [];
     }
-    let distances = Object.values(this.familyData)
+    let distances: [string, number][] = Object.values(this.familyData)
       .filter(
         (f) => f.style // New fonts may not have style embeddings
       )

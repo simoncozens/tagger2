@@ -37,16 +37,24 @@ function useRefreshable<T>(getter: () => T): {
     };
 }
 
+const tagNames = computed(() => {
+    return props.gf.uniqueTagNames().filter(tagName => {
+        // Don't include '/Quant/'
+        return !tagName.startsWith('/Quant/');
+    });
+});
+
 const completeness = computed(() => {
+    console.log("Calculating completeness...");
     const families = props.gf.families;
-    const uniqueTags = props.gf.uniqueTagNames();
+    const uniqueTags = tagNames.value;
     const totalTaggings = families.map(family => family.taggings.length).reduce((a, b) => a + b, 0);
     return (totalTaggings / (families.length * uniqueTags.length)) * 100;
 });
 
 function getNextUntagged(): Untagged | null {
     const families = props.gf.families;
-    const tagnames = props.gf.uniqueTagNames();
+    const uniqueTags = tagNames.value;
     if (completeness.value >= 100) {
         return null; // All fonts are tagged
     }
@@ -54,7 +62,7 @@ function getNextUntagged(): Untagged | null {
         // Grab a random family
         const family = families[Math.floor(Math.random() * families.length)];
         // Grab a random tagname
-        const tagname = tagnames[Math.floor(Math.random() * tagnames.length)];
+        const tagname = uniqueTags[Math.floor(Math.random() * uniqueTags.length)];
         // If the family is not tagged with the tagname, return it
         if (!family.hasTagging(tagname)) {
             EventBus.$emit('ensure-loaded', family.name);
@@ -82,7 +90,7 @@ function tagIt(untagged: Untagged, score: number) {
     } else {
         family.addTagging({ font: family, tag, score });
     }
-    EventBus.$emit('update:tags', family.taggings);
+    console.log(`There are now ` + props.gf.allTaggings.length + ` taggings in the GF.`);
 }
 
 const randomUntaggedRefreshable = useRefreshable(getNextUntagged);
@@ -98,15 +106,15 @@ const randomUntagged = computed(randomUntaggedRefreshable.getter);
                 <div class="progress" :style="{ width: completeness + '%' }">
                 </div>
                 <div class="progress-text">
-                    Tagging is {{ completeness.toFixed(2) }}% complete...
+                    Tagging is {{ completeness.toFixed(3) }}% complete...
                 </div>
             </div>
 
             <h1>Is
                 <span class="family" :style="{ fontFamily: randomUntagged.font.name }">{{ randomUntagged.font.name
-                    }}</span>
+                }}</span>
                 &nbsp;<span class="tag-name">{{ randomUntagged.tagname
-                }}</span>?
+                    }}</span>?
             </h1>
             <h3>({{ randomUntagged.tag_definition.superShortDescription }})</h3>
 
@@ -120,7 +128,7 @@ const randomUntagged = computed(randomUntaggedRefreshable.getter);
             <div class="exemplars">
                 <div class="exemplars-low">
                     <h3 v-if="randomUntagged.exemplars.low.length">Examples of <i>low</i> {{ randomUntagged.tagname
-                    }}</h3>
+                        }}</h3>
                     <div v-for="tagging in randomUntagged.exemplars.low"
                         :key="tagging.font.name + tagging.tag.name + tagging.score">
                         <compact-tag-view :tag="tagging"></compact-tag-view>
@@ -129,14 +137,14 @@ const randomUntagged = computed(randomUntaggedRefreshable.getter);
                 <div class="exemplars-medium">
                     <h3 v-if="randomUntagged.exemplars.medium.length">Examples of <i>medium</i> {{
                         randomUntagged.tagname
-                    }}</h3>
+                        }}</h3>
                     <div v-for="tag in randomUntagged.exemplars.medium" :key="tag.font.name + tag.tag.name + tag.score">
                         <compact-tag-view :tag="tag"></compact-tag-view>
                     </div>
                 </div>
                 <div class="exemplars-high">
                     <h3 v-if="randomUntagged.exemplars.high.length">Examples of <i>high</i> {{ randomUntagged.tagname
-                    }}</h3>
+                        }}</h3>
                     <div v-for="tag in randomUntagged.exemplars.high" :key="tag.font.name + tag.tag.name + tag.score">
                         <compact-tag-view :tag="tag"></compact-tag-view>
                     </div>

@@ -2,7 +2,7 @@
 import { EventBus } from '@/eventbus';
 import { GF } from '@/models';
 import type { Tagging } from '@/models';
-import { computed, defineProps, onBeforeUpdate, ref } from 'vue';
+import { computed, defineProps, onBeforeMount, onBeforeUpdate, ref } from 'vue';
 
 const props = defineProps({
   font: {
@@ -51,13 +51,21 @@ const lintErrors = computed(() => {
   return props.gf.linter(props.gf.lintRules, selectedFamily.value) || [];
 });
 
-function removeTag(tag: Tagging) {
-  EventBus.$emit('remove-tag', tag);
+function removeTagging(tag: Tagging) {
+  tag.font.removeTagging(tag);
 }
 function addFontPanel(font: string) {
   console.log("Emitting add-font-panel from TagsByFont for ", font);
   EventBus.$emit('add-font-panel', font);
 }
+
+onBeforeMount(() => {
+  // Ensure the font is included in the CSS
+  EventBus.$emit('ensure-loaded', font.value);
+  similarFamilies.value.forEach(family => {
+    props.gf?.ensureLoaded(family);
+  });
+});
 
 onBeforeUpdate(() => {
   // Ensure the font is included in the CSS
@@ -96,7 +104,7 @@ onBeforeUpdate(() => {
           </svg>
         </span>
         <input type="number" v-model="tag.score" @change="EventBus.$emit('update:tags', selectedFamily?.taggings)" />
-        <button @click="removeTag(tag)">Remove</button>
+        <button @click="removeTagging(tag)">Remove</button>
       </li>
     </ul>
     <h3 v-if="similarFamilies.length">Similar families</h3>

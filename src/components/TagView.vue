@@ -1,23 +1,21 @@
 <script setup lang="ts">
 import { defineProps, onBeforeMount } from 'vue';
 import type { PropType } from 'vue';
-import { Font } from '../models';
 import type { StaticTagging, Location } from '../models';
 import { EventBus } from '@/eventbus';
 
 const props = defineProps({
-    family: Font,
     tag: Object as PropType<StaticTagging>,
     location: Object as PropType<Location>, // For one day when we handle variable taggings
 });
 
 onBeforeMount(() => {
-    EventBus.$emit('ensure-loaded', props.family?.name);
+    EventBus.$emit('ensure-loaded', props.tag?.font.name);
 });
 
-const removeTag = () => {
+const removeTagging = () => {
     if (props.tag) {
-        EventBus.$emit('remove-tag', props.family, props.tag);
+        props.tag.font.removeTagging(props.tag);
     }
 }
 
@@ -35,13 +33,13 @@ const removeTag = () => {
                     156T763-197q-54 54-127 85.5T480-80Z" />
                 </svg>
             </span>
-            <span class="tag-family">{{ props.family?.name }}</span>
+            <span class="tag-family">{{ props.tag?.font.name }}</span>
             <span class="tag-score" v-if="props.tag">
                 Score: <input type="number" v-model.lazy="props.tag.score" style="width: 60px;" />
             </span>
-            <button @click="removeTag" class="remove-tag-btn">Remove</button>
+            <button @click="removeTagging" class="remove-tag-btn">Remove</button>
         </div>
-        <div class="text-editor" contenteditable="true" :style="props.family?.cssStyle(32)">
+        <div class="text-editor" contenteditable="true" :style="props.tag?.font.cssStyle(32)">
             Hello world
         </div>
     </div>

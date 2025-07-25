@@ -9,6 +9,8 @@ import { EventBus } from './eventbus';
 
 let appLoaded = ref(false);
 let gf = ref<GF | null>(null);
+// @ts-ignore
+window.gf = gf; // For debugging 
 let panels = ref<Panel[]>([
   { type: 'font', font: 'Roboto' },
   { type: 'categories', categories: ['/Expressive/Loud', '/Expressive/Childlike'], }
@@ -80,7 +82,7 @@ onBeforeMount(async () => {
   await gf.value.getLintRules();
   await gf.value.getTagDefinitions();
   gf.value.loadFamilies();
-  // Subscribe to events
+  gf.value.loadTaggings();
   const family = gf.value.families.find(f => f.name === 'Maven Pro');
   if (!family) {
     console.error("Family 'Maven Pro' not found");
@@ -95,6 +97,7 @@ onBeforeMount(async () => {
     ));
   }
 
+  // Subscribe to events
   EventBus.$on('ensure-loaded', (family: string) => {
     gf.value?.ensureLoaded(family);
   });
@@ -120,7 +123,7 @@ onBeforeMount(async () => {
       <button @click="addFontPanel('Maven Pro')">Tags in font</button>
       <button @click="addCategoriesPanel(['/Expressive/Loud'])">Tags in category</button>
       <button @click="addTodoPanel()">Todo List</button>
-      <add-tags @tags-added="performAddTags" :gf="gf"></add-tags>
+      <!-- <add-tags @tags-added="performAddTags" :gf="gf"></add-tags> -->
       <div style="display: flex; flex-direction: row; width: 100vw; min-height: 100vh;">
         <div v-for="(panel, idx) in panels" :key="idx"
           :style="{ flex: '1 1 0', minWidth: 0, borderRight: idx < panels.length - 1 ? '1px solid #eee' : 'none', height: '100vh', overflow: 'auto' }">
