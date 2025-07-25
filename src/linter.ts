@@ -1,5 +1,5 @@
 import { parse } from "./lint_grammar.js";
-import { FontTag } from "./models.js";
+import type { Font, Tagging } from "./models.js";
 
 export type Severity = "ERROR" | "WARN" | "FAIL" | "INFO";
 interface LintRule {
@@ -14,19 +14,21 @@ interface LintWarning {
 }
 export type { LintRule, LintWarning };
 
-export function linter(
-  rules: LintRule[],
-  family: string,
-  taglist: FontTag[]
-): LintWarning[] {
-  const tagDict = taglist.reduce((acc, tag) => {
-    acc[tag.tagName] = tag.score;
-    return acc;
-  }, {} as Record<string, number>);
+export function linter(rules: LintRule[], font: Font): LintWarning[] {
+  const tagDict: Record<string, number> = font.taggings.reduce(
+    (acc, tagging) => {
+      if ("score" in tagging) {
+        // Only handle static taggings for now
+        acc[tagging.tag.name] = tagging.score;
+      }
+      return acc;
+    },
+    {} as Record<string, number>
+  );
   const errors: LintWarning[] = [];
   for (const rule of rules) {
     try {
-      const result = parse(rule.rule, { tags: tagDict, family });
+      const result = parse(rule.rule, { tags: tagDict, family: font.name });
       if (result) {
         errors.push({
           description: rule.description,

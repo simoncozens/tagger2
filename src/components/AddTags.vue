@@ -14,13 +14,13 @@ export type FilterSet = {
     highTag: Condition;
     categories: string[];
 };
-import { Font } from "../models";
+import { Font, GF } from "../models";
 import { computed, defineProps, ref, defineEmits } from 'vue';
 
 
-const props = defineProps({ 
+const props = defineProps({
     gf: {
-        type: Object,
+        type: GF,
         required: true
     }
 });

@@ -1,6 +1,8 @@
 import Vue from "vue";
 import App from "./App.vue";
 import "./assets/main.css";
+import "vue-select/dist/vue-select.css";
+
 import AddTag from "./components/AddTag.vue";
 import AddTags from "./components/AddTags.vue";
 import CompactTagView from "./components/CompactTagView.vue";
@@ -9,7 +11,9 @@ import TagView from "./components/TagView.vue";
 import TagsByCategories from "./components/TagsByCategories.vue";
 import TagsByFont from "./components/TagsByFont.vue";
 import Todo from "./components/Todo.vue";
+import vSelect from "vue-select";
 
+Vue.component("v-select", vSelect);
 Vue.component("panel", Panel);
 Vue.component("add-tag", AddTag);
 Vue.component("add-tags", AddTags);

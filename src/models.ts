@@ -8,70 +8,17 @@ export type Axis = {
   max: number; // Maximum value for the axis
   value?: number; // Current value for the axis, optional
 };
-export type Location = {
-  value: number; // Value for the axis
-  tagName: string; // Name of the tag, e.g. 'Weight'
-};
 
-export type Exemplars = {
-  high: FontTag[];
-  low: FontTag[];
-  medium: FontTag[];
-};
+export type Location = Record<string, number>; // {"wght": 400, "wdth": 100} for example
 
-export class FontTag {
-  tagName: string;
-  family: Font;
-  location: Location[];
-  score: number; // Score for the tag
-
-  constructor(
-    tagName: string,
-    family: Font,
-    location: Location[],
-    score: number
-  ) {
-    this.tagName = tagName;
-    this.family = family;
-    this.location = location;
-    this.score = score; // Score for the tag
-  }
-  toCSV() {
-    const locationCSV = this.location
-      .map((axis) => `${axis.tagName}:${axis.value}`)
-      .join(";");
-    return `${this.tagName},${this.family.name},${locationCSV},${this.score}`;
-  }
-  cssStyle(fontSize = 32) {
-    if (this.location.length === 0) {
-      return `font-family: ${this.family.name}; font-size: ${fontSize}pt;`;
-    }
-    let style = `font-family: "${this.family.name}", "Adobe NotDef"; font-size: ${fontSize}pt; font-variation-settings:`;
-    for (let axis of this.location) {
-      style += ` '${axis.tagName}' ${axis.value},`;
-    }
-    return style.slice(0, -1) + ";"; // Remove trailing comma and add semicolon
-  }
-}
-
-export class FontTagGroup {
-  tags: FontTag[]; // Array of FontTag objects
-
-  constructor() {
-    this.tags = [];
-  }
-  addTag(tag: FontTag) {
-    this.tags.push(tag);
-  }
-}
-
-export class TagDefinition {
+export class Tag {
   name: string;
   description: string;
   superShortDescription: string;
   related: string[]; // Array of related tag names
   lowestScore: number; // Lowest score for the tag, optional
   highestScore: number; // Highest score for the tag, optional
+  _exemplars?: Exemplars; // Optional exemplars, not used in constructor
 
   constructor(
     name: string,
@@ -88,22 +35,51 @@ export class TagDefinition {
     this.lowestScore = lowestScore;
     this.highestScore = highestScore;
   }
-  exemplars(tags: Tags): Exemplars {
+  get friendlyName() {
+    const [_, area, category] = this.name.split("/");
+    if (area == "Sans" || area == "Serif" || area == "Script") {
+      return `${category} ${area.toLowerCase()}`;
+    }
+    if (area == "Theme" || area == "Expressive" || area == "Purpose") {
+      return category.toLowerCase();
+    }
+    if (area == "Quality") {
+      return `High-Quality ${category.toLowerCase()}`;
+    }
+    if (area == "Seasonal" || area == "Special use") {
+      return `${category} (${area.toLowerCase()})`;
+    }
+
+    return this.name;
+  }
+  exemplars(gf: GF): Exemplars {
+    if (this._exemplars) {
+      return this._exemplars; // Return cached exemplars if available
+    }
     const exemplars: Exemplars = {
       high: [],
       low: [],
       medium: [],
     };
-    for (const tag of tags.items) {
-      if (tag.tagName !== this.name) {
+    for (const tagging of gf.allTaggings) {
+      if (tagging.tag.name !== this.name) {
         continue;
       }
-      if (tag.score > 80) {
-        exemplars.high.push(tag);
-      } else if (tag.score <= 20) {
-        exemplars.low.push(tag);
-      } else if (exemplars.medium.length < 3) {
-        exemplars.medium.push(tag);
+      // Only consider static tags for now
+      if ("scores" in tagging) {
+        // Variable tagging, we can skip it for now
+        continue;
+      }
+      if (tagging.score > 80) {
+        exemplars.high.push(tagging);
+      } else if (tagging.score <= 20) {
+        exemplars.low.push(tagging);
+      } else if (
+        tagging.score > 33 &&
+        tagging.score < 66 &&
+        exemplars.medium.length < 3
+      ) {
+        exemplars.medium.push(tagging);
       }
     }
     // Choose top three high
@@ -113,22 +89,83 @@ export class TagDefinition {
     exemplars.low.sort((a, b) => a.score - b.score);
     exemplars.low = exemplars.low.slice(0, 3);
     console.log(`Exemplars for ${this.name}:`, exemplars);
+    // Cache the exemplars
+    this._exemplars = exemplars;
     return exemplars;
   }
 }
 
+// An association between a tag and a font which applies to all parts of the designspace
+export type StaticTagging = {
+  // The font family this tagging applies to.
+  // This may seem superfluous, but sometimes it's useful to pass a list of tag objects
+  // and know which family they belong to.
+  font: Font;
+  tag: Tag;
+  score: number;
+};
+// A tagging which has different scores for different locations in the designspace
+export class VariableTagging {
+  font: Font; // Optional, can be undefined if not applicable
+  tag: Tag;
+  scores: { location: Location; score: number }[];
+
+  constructor(
+    font: Font,
+    tag: Tag,
+    scores: { location: Location; score: number }[]
+  ) {
+    this.font = font;
+    this.tag = tag;
+    this.scores = scores;
+  }
+  // Get the score for a specific location
+  scoreAt(location: Location): number | undefined {
+    const scoreEntry = this.scores.find((s) => {
+      // ({"wght": 400}) != ({"wght": 400}) because it's not the same object
+      // EVEN THOUGH WE DID NOT ASK FOR STRICT EQUALITY WITH !==
+      // JAVASCRIPT WHAT IS WRONG WITH YOU
+      return JSON.stringify(s.location) == JSON.stringify(location);
+    });
+    return scoreEntry ? scoreEntry.score : undefined;
+  }
+  // Just get a score, I don't care
+  get score(): number {
+    console.warn(
+      `Using VariableTagging.score for tag ${this.tag.name}, this is not recommended. Use scoreAt(location) instead.`
+    );
+    if (this.scores.length === 0) {
+      return 0; // No scores available
+    }
+    // Return the average score for simplicity
+    const totalScore = this.scores.reduce((sum, s) => sum + s.score, 0);
+    return totalScore / this.scores.length;
+  }
+}
+export type Tagging = StaticTagging | VariableTagging;
+
+export type Exemplars = {
+  // For now we keep these static
+  high: StaticTagging[];
+  low: StaticTagging[];
+  medium: StaticTagging[];
+};
+
 export class Font {
   name: string;
   axes: Axis[]; // Array of axis objects
+  taggings: Tagging[]; // Array to hold taggings
 
-  constructor(name: string, axes: Axis[]) {
+  constructor(name: string, axes: Axis[], taggings: Tagging[] = []) {
     this.name = name;
-    this.axes = axes; // Array of axis objects
+    this.axes = axes;
+    this.taggings = taggings;
   }
 
   get isVF() {
     return this.axes.length > 0;
   }
+
   cssStyle(fontSize = 32) {
     if (!this.isVF) {
       return `font-family: '${this.name}'; font-size: ${fontSize}pt;`;
@@ -139,6 +176,27 @@ export class Font {
     });
     return res.slice(0, -1) + ";"; // Remove trailing comma and add semicolon
   }
+
+  hasTagging(tagName: string): boolean {
+    return this.taggings.some((tagging) => {
+      return tagging.tag.name === tagName;
+    });
+  }
+
+  addTagging(tagging: Tagging) {
+    if (this.hasTagging(tagging.tag.name)) {
+      console.warn(
+        `Tagging for tag ${tagging.tag.name} already exists in family ${this.name}.`
+      );
+      return;
+    }
+    this.taggings.push(tagging);
+  }
+
+  removeTagging(tagging: Tagging) {
+    this.taggings = this.taggings.filter((t) => t !== tagging);
+  }
+
   get url() {
     let path = `https://fonts.googleapis.com/css2?family=${this.name.replace(
       / /g,
@@ -181,14 +239,14 @@ export class GF {
   familyData: { [key: string]: any }; // Object to hold family metadata
   families: Font[]; // Array to hold Font objects
   loadedFamilies: Font[]; // We add families to the CSS on demand to speed up loading
-  tagDefinitions: { [key: string]: TagDefinition }; // Object to hold tag definitions
+  tags: { [key: string]: Tag }; // Object to hold tag definitions
   lintRules: LintRule[]; // Array to hold lint rules
   linter: any; // Linter instance
 
   constructor() {
     this.familyData = {};
     this.families = [];
-    this.tagDefinitions = {};
+    this.tags = {};
     this.lintRules = [];
     this.linter = linter;
     this.loadedFamilies = [];
@@ -220,16 +278,22 @@ export class GF {
   }
   async getTagDefinitions() {
     let data = await loadText("tag_definitions.json");
-    this.tagDefinitions = JSON.parse(data);
-    
+    this.tags = JSON.parse(data);
+
     let tagScoreData = await loadText("tags_metadata.csv");
-    let csvData = parseCSV(tagScoreData, "name", "lowScore", "highScore", "description");
+    let csvData = parseCSV(
+      tagScoreData,
+      "name",
+      "lowScore",
+      "highScore",
+      "description"
+    );
 
     for (let category of csvData) {
-      const tagDef = this.tagDefinitions[category.name];
+      const tagDef = this.tags[category.name];
       // TODO all categories should be listed in the .json file
-      if (!category.name || !this.tagDefinitions[category.name]) {
-        this.tagDefinitions[category.name] = new TagDefinition(
+      if (!category.name || !this.tags[category.name]) {
+        this.tags[category.name] = new Tag(
           category.name.trim(),
           "",
           "",
@@ -238,7 +302,7 @@ export class GF {
           100
         );
       } else {
-        this.tagDefinitions[category.name] = new TagDefinition(
+        this.tags[category.name] = new Tag(
           category.name.trim(),
           tagDef.description || "",
           tagDef.superShortDescription || "",
@@ -246,14 +310,21 @@ export class GF {
           Number(category.lowScore),
           Number(category.highScore)
         );
-      }     
+      }
     }
   }
-  get sortedTagDefinitions() {
-    return Object.keys(this.tagDefinitions).sort((a, b) => {
+  get sortedTagNames(): string[] {
+    return Object.keys(this.tags).sort((a, b) => {
       return a.localeCompare(b);
     });
-  } 
+  }
+  get allTaggings(): Tagging[] {
+    let taggings: Tagging[] = [];
+    for (let family of this.families) {
+      taggings.push(...family.taggings);
+    }
+    return taggings;
+  }
   loadFamilies() {
     for (let familyName in this.familyData) {
       const axes = [];
@@ -271,13 +342,13 @@ export class GF {
   family(name: string) {
     return this.families.find((family) => family.name === name);
   }
-  similarFamilies(name: string, count = 10) {
+  similarFamilies(name: string, count = 10): string[] {
     const family = this.familyData[name];
     if (!family || !family.style) {
       console.warn(`Family not found (in similar): ${name}`);
       return [];
     }
-    let distances = Object.values(this.familyData)
+    let distances: [string, number][] = Object.values(this.familyData)
       .filter(
         (f) => f.style // New fonts may not have style embeddings
       )
@@ -303,45 +374,12 @@ export class GF {
       this.loadedFamilies.push(font);
     }
   }
-}
 
-export class Tags {
-  gf: GF; // Reference to the GF instance
-  items: FontTag[]; // Array to hold FontTag objects
+  uniqueTagNames(): string[] {
+    return Object.keys(this.tags).sort();
+  }
 
-  constructor(gf: GF) {
-    this.gf = gf;
-    this.items = [];
-    this.loadTags();
-  }
-  toCSV() {
-    return this.items.map((tag) => tag.toCSV()).join("\n");
-  }
-  addTag(tagName: string, fontName: string, axes: any[], score: number) {
-    let family = this.gf.family(fontName);
-    if (family === undefined || family.name === undefined) {
-      console.warn("Family not found (adding tag):", fontName);
-      return;
-    }
-    if (this.has(tagName, fontName)) {
-      console.warn(
-        `Tag ${tagName} for font ${fontName} already exists. Skipping addition.`
-      );
-      return;
-    }
-    const tag = new FontTag(tagName, family, axes, score);
-    this.items.push(tag);
-
-  }
-  has(tagName: string, fontName: string): boolean {
-    return this.items.some((tag) => {
-      return tag.tagName === tagName && tag.family.name === fontName;
-    });
-  }
-  sort() {
-    this.items.sort((a, b) => a.tagName.localeCompare(b.tagName));
-  }
-  loadTags(commit?: string) {
+  loadTaggings(commit?: string) {
     if (commit === undefined) {
       commit = "refs/head/main"; // Default to main branch if no commit is specified
     }
@@ -358,13 +396,16 @@ export class Tags {
           );
           continue;
         }
-        const family = this.gf.family(familyName);
+        const family = this.family(familyName);
         if (family === undefined || family.name === undefined) {
           // console.warn("Family not found (loading tags):", familyName);
           continue;
         }
-        const tag = new FontTag(tagName, family, [], score);
-        this.items.push(tag);
+        family.taggings.push({
+          font: family,
+          tag: this.tags[tagName],
+          score: score,
+        });
       }
     });
   }
