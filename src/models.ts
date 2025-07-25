@@ -376,7 +376,7 @@ export class GF {
   }
 
   uniqueTagNames(): string[] {
-    return Object.keys(this.tags);
+    return Object.keys(this.tags).sort();
   }
 
   loadTaggings(commit?: string) {
