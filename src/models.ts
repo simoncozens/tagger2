@@ -14,12 +14,12 @@ export type Location = {
 };
 
 export type Exemplars = {
-  high: FontTag[];
-  low: FontTag[];
-  medium: FontTag[];
+  high: Tagging[];
+  low: Tagging[];
+  medium: Tagging[];
 };
 
-export class FontTag {
+export class Tagging {
   tagName: string;
   family: Font;
   location: Location[];
@@ -55,17 +55,17 @@ export class FontTag {
 }
 
 export class FontTagGroup {
-  tags: FontTag[]; // Array of FontTag objects
+  tags: Tagging[]; // Array of FontTag objects
 
   constructor() {
     this.tags = [];
   }
-  addTag(tag: FontTag) {
+  addTag(tag: Tagging) {
     this.tags.push(tag);
   }
 }
 
-export class TagDefinition {
+export class Tag {
   name: string;
   description: string;
   superShortDescription: string;
@@ -88,7 +88,7 @@ export class TagDefinition {
     this.lowestScore = lowestScore;
     this.highestScore = highestScore;
   }
-  exemplars(tags: Tags): Exemplars {
+  exemplars(tags: Taggings): Exemplars {
     const exemplars: Exemplars = {
       high: [],
       low: [],
@@ -181,7 +181,7 @@ export class GF {
   familyData: { [key: string]: any }; // Object to hold family metadata
   families: Font[]; // Array to hold Font objects
   loadedFamilies: Font[]; // We add families to the CSS on demand to speed up loading
-  tagDefinitions: { [key: string]: TagDefinition }; // Object to hold tag definitions
+  tagDefinitions: { [key: string]: Tag }; // Object to hold tag definitions
   lintRules: LintRule[]; // Array to hold lint rules
   linter: any; // Linter instance
 
@@ -221,15 +221,21 @@ export class GF {
   async getTagDefinitions() {
     let data = await loadText("tag_definitions.json");
     this.tagDefinitions = JSON.parse(data);
-    
+
     let tagScoreData = await loadText("tags_metadata.csv");
-    let csvData = parseCSV(tagScoreData, "name", "lowScore", "highScore", "description");
+    let csvData = parseCSV(
+      tagScoreData,
+      "name",
+      "lowScore",
+      "highScore",
+      "description"
+    );
 
     for (let category of csvData) {
       const tagDef = this.tagDefinitions[category.name];
       // TODO all categories should be listed in the .json file
       if (!category.name || !this.tagDefinitions[category.name]) {
-        this.tagDefinitions[category.name] = new TagDefinition(
+        this.tagDefinitions[category.name] = new Tag(
           category.name.trim(),
           "",
           "",
@@ -238,7 +244,7 @@ export class GF {
           100
         );
       } else {
-        this.tagDefinitions[category.name] = new TagDefinition(
+        this.tagDefinitions[category.name] = new Tag(
           category.name.trim(),
           tagDef.description || "",
           tagDef.superShortDescription || "",
@@ -246,14 +252,14 @@ export class GF {
           Number(category.lowScore),
           Number(category.highScore)
         );
-      }     
+      }
     }
   }
   get sortedTagDefinitions() {
     return Object.keys(this.tagDefinitions).sort((a, b) => {
       return a.localeCompare(b);
     });
-  } 
+  }
   loadFamilies() {
     for (let familyName in this.familyData) {
       const axes = [];
@@ -305,9 +311,9 @@ export class GF {
   }
 }
 
-export class Tags {
+export class Taggings {
   gf: GF; // Reference to the GF instance
-  items: FontTag[]; // Array to hold FontTag objects
+  items: Tagging[]; // Array to hold Tagging objects
 
   constructor(gf: GF) {
     this.gf = gf;
@@ -329,9 +335,8 @@ export class Tags {
       );
       return;
     }
-    const tag = new FontTag(tagName, family, axes, score);
+    const tag = new Tagging(tagName, family, axes, score);
     this.items.push(tag);
-
   }
   has(tagName: string, fontName: string): boolean {
     return this.items.some((tag) => {
@@ -363,7 +368,7 @@ export class Tags {
           // console.warn("Family not found (loading tags):", familyName);
           continue;
         }
-        const tag = new FontTag(tagName, family, [], score);
+        const tag = new Tagging(tagName, family, [], score);
         this.items.push(tag);
       }
     });

@@ -1,11 +1,11 @@
 <script setup lang="ts">
 import { EventBus } from '@/eventbus';
-import { FontTag, GF } from '@/models';
+import { Tagging, GF } from '@/models';
 import { computed, defineProps, onBeforeUpdate, ref } from 'vue';
 
 const props = defineProps({
   tags: {
-    type: Array as () => FontTag[],
+    type: Array as () => Tagging[],
     required: true
   },
   font: {
@@ -58,7 +58,7 @@ const lintErrors = computed(() => {
   return props.gf.linter(props.gf.lintRules, font.value, filteredTags.value) || [];
 });
 
-function removeTag(tag: FontTag) {
+function removeTag(tag: Tagging) {
   EventBus.$emit('remove-tag', tag);
 }
 function addFontPanel(font: string) {

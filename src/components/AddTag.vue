@@ -1,5 +1,5 @@
 <script lang="ts">
-import { FontTag } from "../models";
+import { Tagging } from "../models";
 
 interface Position {
     coordinate: number;
@@ -34,14 +34,14 @@ export default {
     },
     methods: {
         addTag() {
-            const tag = new FontTag(this.category, this.newFamily, [], this.newScore)
+            const tag = new Tagging(this.category, this.newFamily, [], this.newScore)
             this.$emit('tag-added', tag);
         },
         addVFTags() {
             // perform a cross product of the axes and their positions and create a new VF tag for each combination
             const solved = this.axesCombos(this.axes);
             for (let coordinateSet of solved) {
-                const vfTag = new FontTag(this.category, this.newFamily, coordinateSet.axes, coordinateSet.score);
+                const vfTag = new Tagging(this.category, this.newFamily, coordinateSet.axes, coordinateSet.score);
                 this.$emit('tag-added', vfTag);
             }
         },

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Tags, Font, FontTagGroup, GF } from "../models";
+import { Taggings, Font, FontTagGroup, GF } from "../models";
 import { defineProps, defineEmits, onMounted } from "vue";
 
 type FontPanel = {
@@ -18,7 +18,7 @@ export type Panel = FontPanel | CategoriesPanel | TodoPanel; // Union type for p
 
 const props = defineProps<{
   panel: Panel,
-  tags: Tags,
+  tags: Taggings,
   gf: GF,
 }>();
 const emit = defineEmits(["remove-panel"]);

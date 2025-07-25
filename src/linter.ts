@@ -1,5 +1,5 @@
 import { parse } from "./lint_grammar.js";
-import { FontTag } from "./models.js";
+import { Tagging } from "./models.js";
 
 export type Severity = "ERROR" | "WARN" | "FAIL" | "INFO";
 interface LintRule {
@@ -17,7 +17,7 @@ export type { LintRule, LintWarning };
 export function linter(
   rules: LintRule[],
   family: string,
-  taglist: FontTag[]
+  taglist: Tagging[]
 ): LintWarning[] {
   const tagDict = taglist.reduce((acc, tag) => {
     acc[tag.tagName] = tag.score;

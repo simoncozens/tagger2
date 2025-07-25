@@ -1,13 +1,13 @@
 <script setup lang="ts">
 import { EventBus } from '@/eventbus';
-import { Font, GF, TagDefinition, Tags } from '@/models';
+import { Font, GF, Tag, Taggings } from '@/models';
 import type { Exemplars } from '@/models';
 import { computed, defineProps, ref } from 'vue';
 
 interface Untagged {
     family: Font;
     tagname: string;
-    tag_definition: TagDefinition;
+    tag_definition: Tag;
     exemplars: Exemplars
 }
 
@@ -17,7 +17,7 @@ const props = defineProps({
         required: true
     },
     tags: {
-        type: Tags,
+        type: Taggings,
         required: true
     }
 })

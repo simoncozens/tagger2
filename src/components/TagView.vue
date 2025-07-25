@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import { defineProps, onBeforeMount } from 'vue';
-import { FontTag } from '../models';
+import { Tagging } from '../models';
 import { EventBus } from '@/eventbus';
 
 const props = defineProps({
-    tag: FontTag,
+    tag: Tagging,
 });
 
 
