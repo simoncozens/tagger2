@@ -28,6 +28,16 @@ const selectedFamily = computed(() => {
   return props.gf.family(familyName);
 });
 
+const location = computed(() => {
+  return selectedFamily.value?.axes.reduce((acc, axis) => {
+    if (axis.value) {
+      // @ts-ignore // It's typed to be a number, but Vue stuffs it in as a string
+      acc[axis.tag] = parseFloat(axis.value);
+    }
+    return acc;
+  }, {} as Record<string, number>);
+});
+
 
 const cssStyle = computed(() => {
   if (!selectedFamily.value) return '';
@@ -96,15 +106,21 @@ onBeforeUpdate(() => {
       <input type="range" v-model="axis.value" :min="axis.min" :max="axis.max" />
     </div>
     <ul>
-      <li v-for="tag in selectedFamily?.taggings" :key="tag.tag.name + selectedFamily?.name">
-        <span class="tag-name">{{ tag.tag.name }}
+      <li v-for="tagging in selectedFamily?.taggings" :key="tagging.tag.name + selectedFamily?.name">
+        <span class="tag-name">{{ tagging.tag.name }}
           <svg xmlns="http://www.w3.org/2000/svg" height="22px" viewBox="0 -1000 960 960" width="24px" fill="#000000">
             <path
               d="M440-280h80v-240h-80v240Zm40-320q17 0 28.5-11.5T520-640q0-17-11.5-28.5T480-680q-17 0-28.5 11.5T440-640q0 17 11.5 28.5T480-600Zm0 520q-83 0-156-31.5T197-197q-54-54-85.5-127T80-480q0-83 31.5-156T197-763q54-54 127-85.5T480-880q83 0 156 31.5T763-763q54 54 85.5 127T880-480q0 83-31.5 156T763-197q-54 54-127 85.5T480-80Z" />
           </svg>
         </span>
-        <input type="number" v-model="tag.score" @change="EventBus.$emit('update:tags', selectedFamily?.taggings)" />
-        <button @click="removeTagging(tag)">Remove</button>
+        <span v-if="'scores' in tagging" class="variable-tag tag-score">
+          Variable tag
+          <input type="number" v-if="location && tagging.scoreAt(location)" :value="tagging.scoreAt(location)" />
+          <span class="undefined" v-if="location && !tagging.scoreAt(location)">not defined at this location</span>
+        </span>
+        <input type="number" v-model="tagging.score" v-if="!('scores' in tagging)"
+          @change="EventBus.$emit('update:tags', selectedFamily?.taggings)" />
+        <button @click="removeTagging(tagging)">Remove</button>
       </li>
     </ul>
     <h3 v-if="similarFamilies.length">Similar families</h3>
