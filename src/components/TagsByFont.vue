@@ -140,8 +140,8 @@ onBeforeUpdate(() => {
       Grumpy wizards make toxic brew for the evil Queen and Jack.
     </div>
     <div v-for="axis in selectedFamily?.axes" :key="axis.tag">
-      <label>{{ axis.tag }}: {{ axis.value }}</label>
-      <input type="range" v-model="axis.value" :min="axis.min" :max="axis.max" />
+      <label>{{ axis.tag }}: {{ axis.displayValue }}</label>
+      <input type="range" v-model="axis.displayValue" :min="axis.min" :max="axis.max" />
     </div>
     <ul>
       <li v-for="tagging in selectedFamily?.taggings" :key="tagging.tag.name + selectedFamily?.name">

@@ -6,7 +6,7 @@ export type Axis = {
   tag: string; // Axis tag, e.g. 'wght'
   min: number; // Minimum value for the axis
   max: number; // Maximum value for the axis
-  value?: number; // Current value for the axis, optional
+  displayValue?: number; // Current value for the axis, optional
 };
 
 export type Location = Record<string, number>; // {"wght": 400, "wdth": 100} for example
@@ -333,6 +333,7 @@ export class GF {
           tag: axis.tag,
           min: axis.min,
           max: axis.max,
+          displayValue: axis.defaultValue, // Default to midpoint
         });
       }
       const family = new Font(familyName, axes);
