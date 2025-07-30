@@ -1,4 +1,21 @@
-# Active
+# 🏷️ Global
+
+not tag_covers_100_percent(),WARN,"Tags don’t cover 100% of families?"
+any(tag_value > 100 for tag_value in tag.values()),FAIL,"At least one tag has value >100?"
+tag["/Classification/Sans"] > 0 and tag["/Classification/Serif"] > 0,WARN,"Sans and Serif at once?"
+tag["/Use/Special"] > 0 and (
+    tag["/Expressive/Cute"] > 0 or
+    tag["/Expressive/Playful"] > 0 or
+    tag["/Expressive/Fancy"] > 0 or
+    tag["/Expressive/Artistic"] > 0 or
+    tag["/Expressive/Excited"] > 0 or
+    tag["/Expressive/Loud"] > 0 or
+    tag["/Expressive/Childlike"] > 0 or
+    tag["/Expressive/Happy"] > 0
+),FAIL,"Special-use fonts shouldn't be expressive (e.g. Barcode and Cute?)"
+
+
+# 🏷️ Active
 tag["/Expressive/Active"] > 0 and tag["/Expressive/Business"] > 50,WARN,"Active and Business?"
 tag["/Expressive/Active"] > 0 and tag["/Expressive/Calm"] > 0,WARN,"Active and Calm?"
 tag["/Expressive/Active"] > 0 and tag["/Expressive/Stiff"] > 0,WARN,"Active and Stiff?"
@@ -6,16 +23,54 @@ tag["/Expressive/Excited"] > 0 and not tag["/Expressive/Active"] > 0,WARN,"Excit
 tag["/Expressive/Playful"] > 0 and not tag["/Expressive/Active"] > 0,WARN,"Playful but not Active?"
 tag["/Expressive/Cute"] > 0 and not tag["/Expressive/Active"] > 0,INFO,"Cute but not Active?"
 tag["/Expressive/Calligraphy"] > 0 and not tag["/Expressive/Active"],INFO,"Calligraphy but not Active?"
+tag["/Expressive/Active"] > 0 and not font["OS/2"]["fsSelection"] & 0x1,WARN,"Active but no italics or slant?"
+tag["/Expressive/Active"] == 0 and tag["/Expressive/Playful"] > 0,WARN,"Playful but not Active?"
+tag["/Expressive/Active"] == 0 and tag["/Expressive/Excited"] > 0,WARN,"Excited but not Active?"
+tag["/Expressive/Active"] == 0 and tag["/Expressive/Cute"] > 0,INFO,"Cute but not Active?"
+tag["/Expressive/Active"] == 0 and tag["/Expressive/Calligraphy"] > 0,INFO,"Calligraphy but not Active?"
+tag["/Expressive/Active"] == 0 and tag["/Expressive/Fancy"] > 0,INFO,"Fancy but not Active?"
+tag["/Expressive/Active"] == 0 and (font["hasItalic"] or font["hasSlant"]),INFO,"Italic or Slant but not Active?"
+tag["/Expressive/Active"] == 0 and font["Contrast"] > 60,INFO,"High contrast but not Active?"
 
-# Awkward
+# 🏷️ Artistic
+tag["/Expressive/Artistic"] == 0 and tag["/Script/Formal"] > 80,FAIL,"Calligraphic / Manual but not Artistic?"
+tag["/Expressive/Artistic"] == 0 and tag["/Script/Informal"] > 80,FAIL,"Calligraphic / Manual but not Artistic?"
+tag["/Expressive/Artistic"] == 0 and tag["/Script/Handwritten"] > 80,FAIL,"Calligraphic / Manual but not Artistic?"
+tag["/Expressive/Artistic"] == 0 and tag["/Script/Upright Script"] > 80,FAIL,"Calligraphic / Manual but not Artistic?"
+
+tag["/Expressive/Artistic"] > 0 and tag["/Expressive/Business"] > 0,WARN,"Artistic and Business?"
+tag["/Expressive/Artistic"] > 0 and tag["/Expressive/Calm"] > 0,WARN,"Artistic and Calm?"
+tag["/Expressive/Artistic"] > 0 and tag["/Expressive/Competent"] > 0,WARN,"Artistic and Competent?"
+
+tag["/Expressive/Artistic"] == 0 and tag["/Expressive/Playful"] > 0,WARN,"Playful but not Artistic?"
+tag["/Expressive/Artistic"] == 0 and tag["/Expressive/Excited"] > 0,WARN,"Excited but not Artistic?"
+tag["/Expressive/Artistic"] == 0 and tag["/Expressive/Cute"] > 0,WARN,"Cute but not Artistic?"
+tag["/Expressive/Artistic"] == 0 and tag["/Expressive/Futuristic"] > 0,WARN,"Futuristic but not Artistic?"
+tag["/Expressive/Artistic"] == 0 and tag["/Expressive/Fancy"] > 0,WARN,"Fancy but not Artistic?"
+tag["/Expressive/Artistic"] == 0 and tag["/Expressive/Innovative"] > 0,WARN,"Innovative but not Artistic?"
+tag["/Expressive/Artistic"] == 0 and tag["/Expressive/Happy"] > 80,WARN,"Happy Formal but not Artistic?"
+
+tag["/Expressive/Artistic"] == 0 and tag["/Expressive/Awkward"] > 0,INFO,"Awkward but not Artistic?"
+tag["/Expressive/Artistic"] == 0 and tag["/Classification/Display"] == true,INFO,"Display but not Artistic?"
+tag["/Expressive/Artistic"] == 0 and tag["/Expressive/Vintage"] > 80,INFO,"Vintage but not Artistic?"
+tag["/Expressive/Artistic"] == 0 and tag["/Expressive/Stiff"] > 80,INFO,"Stiff but not Artistic?"
+
+
+# 🏷️ Awkward
+
+tag["/Expressive/Awkward"] > 0 and tag["/Purpose/Learn To Write"] > 80,FAIL,"Awkward and Educational?"
+tag["/Expressive/Awkward"] > 0 and tag["/Purpose/Easy Reading"] > 80,FAIL,"Awkward and Educational?"
+tag["/Expressive/Awkward"] > 0 and tag["/Expressive/Business"] > 0,WARN,"Awkward and Business?"
+tag["/Expressive/Awkward"] > 0 and tag["/Expressive/Calm"] > 0,WARN,"Awkward and Calm?"
 tag["/Expressive/Awkward"] > 0 and tag["/Expressive/Fancy"] > 0,WARN,"Awkward and Fancy?"
 tag["/Expressive/Awkward"] > 0 and tag["/Expressive/Sophisticated"] > 0,WARN,"Awkward and Sophisticated?"
+tag["/Expressive/Awkward"] > 0 and tag["/Expressive/Competent"] > 0,WARN,"Awkward and Competent?"
+tag["/Expressive/Awkward"] > 0 and tag["/Script/Formal"] > 80,WARN,"Awkward and Calligraphy?"
 
-# Fancy
-tag["/Expressive/Fancy"] > 0 and not tag["/Expressive/Active"] > 0,INFO,"Fancy but not Active?"
-#tag["/Expressive/Fancy"] > 0 and not font["OS/2"]["fsSelection"] & 0x1,INFO,"Italic but not Active?"
+tag["/Expressive/Awkward"] == 0 and tag["/Expressive/Artistic"] > 0,WARN,"Artistic but not Awkward?"
+(tag["/Expressive/Awkward"] == 0 and (tag["/Quality/Spacing"] < 50 or tag["/Quality/Wordspace"] < 50 or tag["/Quality/Drawing"] < 50)),WARN,"Poor quality but not Awkward?"
 
-# Business
+# 🏷️ Business
 tag["/Expressive/Business"] > 0 and tag["/Expressive/Artistic"] > 0,WARN,"Business and Artistic?"
 tag["/Expressive/Business"] > 0 and tag["/Expressive/Awkward"] > 0,WARN,"Business and Awkward?"
 tag["/Expressive/Business"] > 0 and tag["/Expressive/Childlike"] > 0,WARN,"Business and Childlike?"
@@ -28,4 +83,99 @@ tag["/Expressive/Business"] > 0 and "SC" in family,FAIL,"Small-caps families are
 tag["/Expressive/Business"] > 50 and tag["/Quality/Wordspace"] < 80,FAIL,"Business but low Wordspace quality?"
 tag["/Expressive/Business"] > 50 and tag["/Quality/Drawing"] < 80,FAIL,"Business but low Drawing quality?"
 tag["/Expressive/Business"] > 50 and tag["/Quality/Spacing"] < 80,FAIL,"Business but low Spacing quality?"
+
+# 🏷️ Calm
+
+tag["/Expressive/Calm"] > 0 and tag["/Expressive/Loud"] > 0,WARN,"Calm and Loud?"
+tag["/Expressive/Calm"] > 0 and tag["/Expressive/Awkward"] > 0,WARN,"Calm and Awkward?"
+tag["/Expressive/Calm"] > 0 and tag["/Classification/Serif"] > 0,WARN,"Calm and Serif?"
+tag["/Expressive/Calm"] > 0 and tag["/Expressive/Rugged"] > 0,WARN,"Calm and Rugged?"
+#tag["/Expressive/Calm"] > 0 and font["Contrast"] > 60,INFO,"High contrast but Calm?"
+
+tag["/Expressive/Calm"] == 0 and tag["/Purpose/Easy Reading"] > 80,WARN,"Easy Reading but not Calm?"
+tag["/Expressive/Calm"] == 0 and tag["/Purpose/Learn To Write"] > 80,WARN,"Learn to Write but not Calm?"
+tag["/Expressive/Calm"] == 0 and tag["/Expressive/Business"] > 0,WARN,"Business but not Calm?"
+tag["/Expressive/Calm"] == 0 and tag["/Expressive/Competent"] > 0,WARN,"Competent but not Calm?"
+
+tag["/Expressive/Calm"] == 0 and tag["/Classification/Neo-grotesque"] > 0 and font["OS/2"]["usWeightClass"] < 600 and not font["isCondensed"],INFO,"Neo-grotesque light and not Calm?"
+tag["/Expressive/Calm"] == 0 and tag["/Classification/Humanist Sans"] > 0 and font["OS/2"]["usWeightClass"] < 600 and not font["isCondensed"],INFO,"Humanist light and not Calm?"
+tag["/Expressive/Calm"] == 0 and tag["/Classification/Geometric Sans"] > 0 and font["OS/2"]["usWeightClass"] < 600 and not font["isCondensed"],INFO,"Geometric Sans light and not Calm?"
+tag["/Expressive/Calm"] == 0 and tag["/Sans/Rounded] > 0 and font["OS/2"]["usWeightClass"] < 600 and not font["isCondensed"],INFO,"Rounded Sans light and not Calm?"
+
+# 🏷️ Childlike
+
+tag["/Expressive/Childlike"] > 0 and tag["/Script/Formal"] > 0,FAIL,"Childlike and Formal Calligraphy?"
+tag["/Expressive/Childlike"] > 0 and font["HasDoubleStoryA"] == True,FAIL,"Childlike but has double-story 'a'?"
+tag["/Expressive/Childlike"] > 0 and font["HasDoubleStoryG"] == True,FAIL,"Childlike but has double-story 'g'?"
+tag["/Expressive/Childlike"] > 0 and tag["/Expressive/Sophisticated"] > 0,WARN,"Childlike and Sophisticated?"
+tag["/Expressive/Childlike"] > 0 and tag["/Expressive/Fancy"] > 0,WARN,"Childlike and Fancy?"
+tag["/Expressive/Childlike"] > 0 and tag["/Expressive/Business"] > 0,WARN,"Childlike and Business?"
+tag["/Expressive/Childlike"] > 0 and tag["/Expressive/Stiff"] > 0,WARN,"Childlike and Stiff?"
+
+tag["/Expressive/Childlike"] > 0 and tag["/Expressive/Cute"] > 0,INFO,"Childlike and Cute — OK but check story form of 'a/g'"
+tag["/Expressive/Childlike"] > 0 and tag["/Expressive/Happy"] > 0,INFO,"Childlike and Happy — OK but check stylistic intent"
+tag["/Expressive/Childlike"] > 0 and tag["/Script/Handwritten"] > 0,INFO,"Childlike and Handwritten — check writing intent"
+tag["/Expressive/Childlike"] > 0 and tag["/Script/Informal"] > 0,INFO,"Childlike and Informal — check consistency"
+tag["/Expressive/Childlike"] > 0 and tag["/Seasonal/Halloween"] > 0,INFO,"Childlike and Halloween — spooky overlap?"
+tag["/Expressive/Childlike"] > 0 and tag["/Expressive/Awkward"] > 0,INFO,"Childlike and Awkward — childish imperfection?"
+tag["/Expressive/Childlike"] > 0 and tag["/Theme/Blobby"] > 0,INFO,"Childlike and Blobby — check legibility"
+
+# 🏷️ Competent
+
+tag["/Expressive/Competent"] == 0 and tag["/Classification/Geometric Sans"] > 0,WARN,"Geometric Sans but not Competent?"
+tag["/Expressive/Competent"] == 0 and tag["/Expressive/Business"] > 0,WARN,"Business but not Competent?"
+tag["/Expressive/Competent"] == 0 and tag["/Expressive/Calm"] > 0,INFO,"Calm but not Competent?"
+tag["/Expressive/Competent"] == 0 and font["IsCondensed"] == True,INFO,"Condensed but not Competent?"
+tag["/Expressive/Competent"] == 0 and font["StrokeWeight"] >= 600,INFO,"Heavy weight but not Competent?"
+#tag["/Expressive/Competent"] == 0 and font["HasDoubleStoryA"] == True and font["HasDoubleStoryG"] == True,INFO,"Double-story 'a' and 'g' but not Competent?" (combine to another condition (sans serif for example))
+tag["/Expressive/Competent"] == 0 and font["SupportsPanAfricanGlyphs"] == True,INFO,"Pan-African glyph support but not Competent?"
+tag["/Expressive/Competent"] == 0 and font["SupportsMultipleScripts"] >= 3,INFO,"Multiscript font but not Competent?"
+tag["/Expressive/Competent"] > 0 and tag["/Expressive/Cute"] > 0,FAIL,"Competent and Cute?"
+tag["/Expressive/Competent"] > 0 and tag["/Expressive/Playful"] > 0,FAIL,"Competent and Playful?"
+tag["/Expressive/Competent"] > 0 and tag["/Expressive/Childlike"] > 0,FAIL,"Competent and Childlike?"
+tag["/Expressive/Competent"] > 0 and tag["/Expressive/Innovative"] > 0,FAIL,"Competent and Innovative?"
+tag["/Expressive/Competent"] > 0 and tag["/Expressive/Happy"] > 0,FAIL,"Competent and Happy?"
+tag["/Expressive/Competent"] > 50 and tag["/Quality/Wordspace"] < 80,FAIL,"Competent but low Wordspace quality?"
+tag["/Expressive/Competent"] > 50 and tag["/Quality/Drawing"] < 80,FAIL,"Competent but low Drawing quality?"
+tag["/Expressive/Competent"] > 50 and tag["/Quality/Spacing"] < 80,FAIL,"Competent but low Spacing quality?"
+tag["/Expressive/Competent"] > 0 and font["SupportsMultipleScripts"] >= 3,INFO,"Competent and multiscript — reinforce global applicability"
+
+# 🏷️ Cute
+
+tag["/Expressive/Cute"] == 0 and tag["/Expressive/Playful"] > 0,INFO,"Playful but not Cute?"
+tag["/Expressive/Cute"] == 0 and tag["/Expressive/Childlike"] > 0,INFO,"Childlike but not Cute?"
+tag["/Expressive/Cute"] == 0 and tag["/Sans/Rounded] > 0,INFO,"Rounded terminals but not Cute?"
+tag["/Expressive/Cute"] > 0 and tag["/Expressive/Business"] > 0,FAIL,"Cute and Business?"
+tag["/Expressive/Cute"] > 0 and tag["/Expressive/Calm"] > 0,FAIL,"Cute and Calm?"
+tag["/Expressive/Cute"] > 0 and tag["/Expressive/Competent"] > 0,FAIL,"Cute and Competent?"
+tag["/Expressive/Cute"] > 0 and tag["/Expressive/Fancy"] > 0,FAIL,"Cute and Fancy?"
+tag["/Expressive/Cute"] > 0 and tag["/Script/Formal"] > 0,FAIL,"Cute and Formal Calligraphy?"
+tag["/Expressive/Cute"] > 0 and font["Contrast"] > 70,WARN,"High contrast but Cute?"
+
+# 🏷️ Excited
+
+tag["/Expressive/Excited"] == 0 and tag["/Expressive/Happy"] > 0,WARN,"Happy but not Excited?"
+tag["/Expressive/Excited"] == 0 and tag["/Classification/Display"] > 0,WARN,"Display but not Excited?"
+tag["/Expressive/Excited"] == 0 and tag["/Expressive/Active"] > 0,WARN,"Active but not Excited?"
+tag["/Expressive/Excited"] == 0 and tag["/Expressive/Artistic"] > 0,WARN,"Artistic but not Excited?"
+
+tag["/Expressive/Excited"] > 0 and tag["/Expressive/Business"] > 0,FAIL,"Excited and Business?"
+tag["/Expressive/Excited"] > 0 and tag["/Expressive/Calm"] > 0,FAIL,"Excited and Calm?"
+tag["/Expressive/Excited"] > 0 and tag["/Expressive/Competent"] > 0,FAIL,"Excited and Competent?"
+tag["/Expressive/Excited"] > 0 and tag["/Classification/Techno"] > 0,FAIL,"Excited and Techno?"
+
+tag["/Expressive/Excited"] > 0 and tag["/Formal/Body Text"] > 0,WARN,"Body Text and Excited?"
+tag["/Expressive/Excited"] > 0 and tag["/Monospace/Monospace"] > 0,WARN,"Monospaced but Excited?"
+tag["/Expressive/Excited"] > 0 and font["Contrast"] < 15,WARN,"Low contrast and Excited?"
+
+
+# 🏷️ Fancy
+tag["/Expressive/Fancy"] > 0 and not tag["/Expressive/Active"] > 0,INFO,"Fancy but not Active?"
+
+
+# 🏷️ Loud
+
+tag["/Expressive/Loud"] > 0 and font["OS/2"]["usWeightClass"] <= 699,WARN,"Loud but weight ≤ Bold?"
+tag["/Expressive/Loud"] == 0 and font["OS/2"]["usWeightClass"] >= 800,WARN,"Heavy but not Loud?"
+
 
