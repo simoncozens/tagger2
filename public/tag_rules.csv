@@ -85,13 +85,67 @@ tag["/Expressive/Business"] > 50 and tag["/Quality/Spacing"] < 80,FAIL,"Business
 # Calm
 
 tag["/Expressive/Calm"] > 0 and tag["/Expressive/Loud"] > 0,WARN,"Calm and Loud?"
+tag["/Expressive/Calm"] > 0 and tag["/Expressive/Awkward"] > 0,WARN,"Calm and Awkward?"
+tag["/Expressive/Calm"] > 0 and tag["/Classification/Serif"] > 0,WARN,"Calm and Serif?"
+tag["/Expressive/Calm"] > 0 and tag["/Texture/Rugged"] > 0,WARN,"Calm and Rugged?"
+#tag["/Expressive/Calm"] > 0 and font["Contrast"] > 60,INFO,"High contrast but Calm?"
+
+tag["/Expressive/Calm"] == 0 and tag["/Formal/Easy Reading"] > 80,WARN,"Easy Reading but not Calm?"
+tag["/Expressive/Calm"] == 0 and tag["/Formal/Learn To Write"] > 80,WARN,"Learn to Write but not Calm?"
+tag["/Expressive/Calm"] == 0 and tag["/Expressive/Business"] > 0,WARN,"Business but not Calm?"
+tag["/Expressive/Calm"] == 0 and tag["/Expressive/Competent"] > 0,WARN,"Competent but not Calm?"
+
+tag["/Expressive/Calm"] == 0 and tag["/Classification/Neo-grotesque"] > 0 and font["OS/2"]["usWeightClass"] < 600 and not font["isCondensed"],INFO,"Neo-grotesque light and not Calm?"
+tag["/Expressive/Calm"] == 0 and tag["/Classification/Humanist Sans"] > 0 and font["OS/2"]["usWeightClass"] < 600 and not font["isCondensed"],INFO,"Humanist light and not Calm?"
+tag["/Expressive/Calm"] == 0 and tag["/Classification/Geometric Sans"] > 0 and font["OS/2"]["usWeightClass"] < 600 and not font["isCondensed"],INFO,"Geometric Sans light and not Calm?"
+tag["/Expressive/Calm"] == 0 and tag["/Classification/Rounded Sans"] > 0 and font["OS/2"]["usWeightClass"] < 600 and not font["isCondensed"],INFO,"Rounded Sans light and not Calm?"
+
+# Childlike
+
+tag["/Expressive/Childlike"] > 0 and tag["/Formal/Calligraphy"] > 0,FAIL,"Childlike and Formal Calligraphy?"
+tag["/Expressive/Childlike"] > 0 and font["HasDoubleStoryA"] == True,FAIL,"Childlike but has double-story 'a'?"
+tag["/Expressive/Childlike"] > 0 and font["HasDoubleStoryG"] == True,FAIL,"Childlike but has double-story 'g'?"
+tag["/Expressive/Childlike"] > 0 and tag["/Expressive/Sophisticated"] > 0,WARN,"Childlike and Sophisticated?"
+tag["/Expressive/Childlike"] > 0 and tag["/Expressive/Fancy"] > 0,WARN,"Childlike and Fancy?"
+tag["/Expressive/Childlike"] > 0 and tag["/Expressive/Business"] > 0,WARN,"Childlike and Business?"
+tag["/Expressive/Childlike"] > 0 and tag["/Expressive/Stiff"] > 0,WARN,"Childlike and Stiff?"
+
+tag["/Expressive/Childlike"] > 0 and tag["/Expressive/Cute"] > 0,INFO,"Childlike and Cute — OK but check story form of 'a/g'"
+tag["/Expressive/Childlike"] > 0 and tag["/Expressive/Happy"] > 0,INFO,"Childlike and Happy — OK but check stylistic intent"
+tag["/Expressive/Childlike"] > 0 and tag["/Formal/Handwritten"] > 0,INFO,"Childlike and Handwritten — check writing intent"
+tag["/Expressive/Childlike"] > 0 and tag["/Expressive/Informal"] > 0,INFO,"Childlike and Informal — check consistency"
+tag["/Expressive/Childlike"] > 0 and tag["/Theme/Halloween"] > 0,INFO,"Childlike and Halloween — spooky overlap?"
+tag["/Expressive/Childlike"] > 0 and tag["/Expressive/Awkward"] > 0,INFO,"Childlike and Awkward — childish imperfection?"
+tag["/Expressive/Childlike"] > 0 and tag["/Texture/Blobby"] > 0,INFO,"Childlike and Blobby — check legibility"
+
+# Competent
+
+tag["/Expressive/Competent"] == 0 and tag["/Classification/Geometric Sans"] > 0,WARN,"Geometric Sans but not Competent?"
+tag["/Expressive/Competent"] == 0 and tag["/Expressive/Business"] > 0,WARN,"Business but not Competent?"
+tag["/Expressive/Competent"] == 0 and tag["/Expressive/Calm"] > 0,INFO,"Calm but not Competent?"
+tag["/Expressive/Competent"] == 0 and font["IsCondensed"] == True,INFO,"Condensed but not Competent?"
+tag["/Expressive/Competent"] == 0 and font["StrokeWeight"] >= 600,INFO,"Heavy weight but not Competent?"
+#tag["/Expressive/Competent"] == 0 and font["HasDoubleStoryA"] == True and font["HasDoubleStoryG"] == True,INFO,"Double-story 'a' and 'g' but not Competent?" (combine to another condition (sans serif for example))
+tag["/Expressive/Competent"] == 0 and font["SupportsPanAfricanGlyphs"] == True,INFO,"Pan-African glyph support but not Competent?"
+tag["/Expressive/Competent"] == 0 and font["SupportsMultipleScripts"] >= 3,INFO,"Multiscript font but not Competent?"
+tag["/Expressive/Competent"] > 0 and tag["/Expressive/Cute"] > 0,FAIL,"Competent and Cute?"
+tag["/Expressive/Competent"] > 0 and tag["/Expressive/Playful"] > 0,FAIL,"Competent and Playful?"
+tag["/Expressive/Competent"] > 0 and tag["/Expressive/Childlike"] > 0,FAIL,"Competent and Childlike?"
+tag["/Expressive/Competent"] > 0 and tag["/Expressive/Innovative"] > 0,FAIL,"Competent and Innovative?"
+tag["/Expressive/Competent"] > 0 and tag["/Expressive/Happy"] > 0,FAIL,"Competent and Happy?"
+tag["/Expressive/Competent"] > 0 and font["Quality/Readability"] < 70,WARN,"Competent with low readability?"
+tag["/Expressive/Competent"] > 0 and font["SupportsMultipleScripts"] >= 3,INFO,"Competent and multiscript — reinforce global applicability"
+
+
+
 
 # Fancy
 tag["/Expressive/Fancy"] > 0 and not tag["/Expressive/Active"] > 0,INFO,"Fancy but not Active?"
 
+
 # Loud
 
-tag["/Expressive/Loud"] > 0 and font["OS/2"]["usWeightClass"] <= 699,WARN,"Loud but weight ≤ 699?"
+tag["/Expressive/Loud"] > 0 and font["OS/2"]["usWeightClass"] <= 699,WARN,"Loud but weight ≤ Bold?"
 tag["/Expressive/Loud"] == 0 and font["OS/2"]["usWeightClass"] >= 800,WARN,"Heavy but not Loud?"
 
 
