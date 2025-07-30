@@ -100,7 +100,7 @@ tag["/Expressive/Calm"] == 0 and tag["/Expressive/Competent"] > 0,WARN,"Competen
 tag["/Expressive/Calm"] == 0 and tag["/Classification/Neo-grotesque"] > 0 and font["OS/2"]["usWeightClass"] < 600 and not font["isCondensed"],INFO,"Neo-grotesque light and not Calm?"
 tag["/Expressive/Calm"] == 0 and tag["/Classification/Humanist Sans"] > 0 and font["OS/2"]["usWeightClass"] < 600 and not font["isCondensed"],INFO,"Humanist light and not Calm?"
 tag["/Expressive/Calm"] == 0 and tag["/Classification/Geometric Sans"] > 0 and font["OS/2"]["usWeightClass"] < 600 and not font["isCondensed"],INFO,"Geometric Sans light and not Calm?"
-tag["/Expressive/Calm"] == 0 and tag["/Classification/Rounded Sans"] > 0 and font["OS/2"]["usWeightClass"] < 600 and not font["isCondensed"],INFO,"Rounded Sans light and not Calm?"
+tag["/Expressive/Calm"] == 0 and tag["/Sans/Rounded] > 0 and font["OS/2"]["usWeightClass"] < 600 and not font["isCondensed"],INFO,"Rounded Sans light and not Calm?"
 
 # 🏷️ Childlike
 
@@ -144,7 +144,7 @@ tag["/Expressive/Competent"] > 0 and font["SupportsMultipleScripts"] >= 3,INFO,"
 
 tag["/Expressive/Cute"] == 0 and tag["/Expressive/Playful"] > 0,INFO,"Playful but not Cute?"
 tag["/Expressive/Cute"] == 0 and tag["/Expressive/Childlike"] > 0,INFO,"Childlike but not Cute?"
-tag["/Expressive/Cute"] == 0 and font["HasRoundedTerminals"] == True,INFO,"Rounded terminals but not Cute?"
+tag["/Expressive/Cute"] == 0 and tag["/Sans/Rounded] > 0,INFO,"Rounded terminals but not Cute?"
 tag["/Expressive/Cute"] > 0 and tag["/Expressive/Business"] > 0,FAIL,"Cute and Business?"
 tag["/Expressive/Cute"] > 0 and tag["/Expressive/Calm"] > 0,FAIL,"Cute and Calm?"
 tag["/Expressive/Cute"] > 0 and tag["/Expressive/Competent"] > 0,FAIL,"Cute and Competent?"
