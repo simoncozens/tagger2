@@ -89,7 +89,7 @@ tag["/Expressive/Business"] > 50 and tag["/Quality/Spacing"] < 80,FAIL,"Business
 tag["/Expressive/Calm"] > 0 and tag["/Expressive/Loud"] > 0,WARN,"Calm and Loud?"
 tag["/Expressive/Calm"] > 0 and tag["/Expressive/Awkward"] > 0,WARN,"Calm and Awkward?"
 tag["/Expressive/Calm"] > 0 and tag["/Classification/Serif"] > 0,WARN,"Calm and Serif?"
-tag["/Expressive/Calm"] > 0 and tag["/Texture/Rugged"] > 0,WARN,"Calm and Rugged?"
+tag["/Expressive/Calm"] > 0 and tag["/Expressive/Rugged"] > 0,WARN,"Calm and Rugged?"
 #tag["/Expressive/Calm"] > 0 and font["Contrast"] > 60,INFO,"High contrast but Calm?"
 
 tag["/Expressive/Calm"] == 0 and tag["/Purpose/Easy Reading"] > 80,WARN,"Easy Reading but not Calm?"
@@ -116,9 +116,9 @@ tag["/Expressive/Childlike"] > 0 and tag["/Expressive/Cute"] > 0,INFO,"Childlike
 tag["/Expressive/Childlike"] > 0 and tag["/Expressive/Happy"] > 0,INFO,"Childlike and Happy — OK but check stylistic intent"
 tag["/Expressive/Childlike"] > 0 and tag["/Script/Handwritten"] > 0,INFO,"Childlike and Handwritten — check writing intent"
 tag["/Expressive/Childlike"] > 0 and tag["/Script/Informal"] > 0,INFO,"Childlike and Informal — check consistency"
-tag["/Expressive/Childlike"] > 0 and tag["/Theme/Halloween"] > 0,INFO,"Childlike and Halloween — spooky overlap?"
+tag["/Expressive/Childlike"] > 0 and tag["/Seasonal/Halloween"] > 0,INFO,"Childlike and Halloween — spooky overlap?"
 tag["/Expressive/Childlike"] > 0 and tag["/Expressive/Awkward"] > 0,INFO,"Childlike and Awkward — childish imperfection?"
-tag["/Expressive/Childlike"] > 0 and tag["/Texture/Blobby"] > 0,INFO,"Childlike and Blobby — check legibility"
+tag["/Expressive/Childlike"] > 0 and tag["/Theme/Blobby"] > 0,INFO,"Childlike and Blobby — check legibility"
 
 # 🏷️ Competent
 
