@@ -167,7 +167,7 @@ const randomUntagged = computed(randomUntaggedRefreshable.getter);
                 <span>100</span>
             </div>
             <input type="number" v-model="newScore" placeholder="Score (0-100)">
-            <button @click="tagIt(randomUntagged, newScore)">
+            <button @click="randomUntagged && tagIt(randomUntagged, newScore)">
                 Tag it!</button>
             </p>
 
