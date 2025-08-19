@@ -1,7 +1,4 @@
-<script setup lang="ts">
-import type { GF } from "../models";
-import { defineProps, defineEmits, onMounted } from "vue";
-
+<script lang="ts">// No setup magic for exports
 type FontPanel = {
   type: "font"; // Type of panel
   font: string; // Font name
@@ -15,16 +12,20 @@ type TodoPanel = {
   type: "todo"; // Type of panel
 };
 export type Panel = FontPanel | CategoriesPanel | TodoPanel; // Union type for panel
+</script>
+
+<script setup lang="ts">
+import type { GF } from "../models";
+import { defineProps, defineEmits, onMounted } from "vue";
+import { delegate } from 'tippy.js';
+import 'tippy.js/dist/tippy.css';
+import 'tippy.js/themes/material.css';
 
 const props = defineProps<{
   panel: Panel,
   gf: GF,
 }>();
 const emit = defineEmits(["remove-panel", "shift-left", "shift-right"]);
-
-import { delegate } from 'tippy.js';
-import 'tippy.js/dist/tippy.css';
-import 'tippy.js/themes/material.css';
 
 
 

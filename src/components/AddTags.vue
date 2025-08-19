@@ -92,7 +92,7 @@ function addTags() {
         <div>
             <h3>Categories</h3>
             <select v-model="currentCategories" multiple>
-                <option v-for="definition in Object.keys(gf.tagDefinitions).sort()">
+                <option v-for="definition in Object.keys(gf.tags).sort()">
                     {{ definition }}
                 </option>
             </select>

@@ -38,9 +38,9 @@ const selectedFamily = computed(() => {
 
 const location = computed(() => {
   return selectedFamily.value?.axes.reduce((acc, axis) => {
-    if (axis.value) {
+    if (axis.displayValue) {
       // @ts-ignore // It's typed to be a number, but Vue stuffs it in as a string
-      acc[axis.tag] = parseFloat(axis.value);
+      acc[axis.tag] = parseFloat(axis.displayValue);
     }
     return acc;
   }, {} as Record<string, number>);
@@ -54,7 +54,7 @@ const cssStyle = computed(() => {
     res += ' font-variation-settings:';
   }
   selectedFamily.value.axes.forEach(axis => {
-    res += ` '${axis.tag}' ${axis.value},`;
+    res += ` '${axis.tag}' ${axis.displayValue},`;
   });
   return res.slice(0, -1) + ';'; // Remove trailing comma and add semicolon
 });
@@ -109,6 +109,16 @@ function addGlobalTag() {
     font: selectedFamily.value,
     score: newTagScore.value,
   } as StaticTagging);
+}
+
+function addVariableTag() {
+  if (!selectedFamily.value || !newTag.value || newVfTagScores.value === null) return;
+  const tag = props.gf.tags[newTag.value];
+  if (!tag) {
+    console.error("Tag not found:", newTag.value);
+    return;
+  }
+  // XXX Do something clever with newVfTagScores to turn it into a bunch of VariableTaggings
 }
 
 onBeforeMount(() => {
