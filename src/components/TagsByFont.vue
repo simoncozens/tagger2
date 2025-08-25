@@ -1,7 +1,11 @@
+<script lang="ts">
+import type { Tagging } from '@/models';
+</script>
+
 <script setup lang="ts">
 import { EventBus } from '@/eventbus';
 import { GF } from '@/models';
-import { StaticTagging, Tagging } from '@/models';
+import { StaticTagging } from '@/models';
 import { computed, defineProps, onBeforeMount, onBeforeUpdate, ref, triggerRef, watch } from 'vue';
 
 const props = defineProps({
