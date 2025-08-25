@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { EventBus } from '@/eventbus';
 import { GF } from '@/models';
-import type { StaticTagging, Tagging } from '@/models';
+import { StaticTagging, Tagging } from '@/models';
 import { computed, defineProps, onBeforeMount, onBeforeUpdate, ref, triggerRef, watch } from 'vue';
 
 const props = defineProps({
@@ -104,11 +104,7 @@ function addGlobalTag() {
     console.error("Tag not found:", newTag.value);
     return;
   }
-  selectedFamily.value.taggings.push({
-    tag: tag,
-    font: selectedFamily.value,
-    score: newTagScore.value,
-  } as StaticTagging);
+  selectedFamily.value.taggings.push(new StaticTagging(selectedFamily.value, tag, newTagScore.value));
 }
 
 function addVariableTag() {
