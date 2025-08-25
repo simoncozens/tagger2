@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { EventBus } from '@/eventbus';
-import { Font, GF, Tag } from '@/models';
+import { Font, GF, StaticTagging, Tag } from '@/models';
 import type { Exemplars } from '@/models';
 import { computed, defineProps, ref } from 'vue';
 
@@ -92,7 +92,7 @@ function tagIt(untagged: Untagged, score: number) {
         console.log(`We already have a tagging for ${tag.name} in ${family.name}, can't happen.`);
         return;
     } else {
-        family.addTagging({ font: family, tag, score });
+        family.addTagging(new StaticTagging(family, tag, score));
     }
     console.log(`There are now ` + props.gf.allTaggings.length + ` taggings in the GF.`);
 }

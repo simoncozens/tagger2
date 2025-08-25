@@ -96,14 +96,23 @@ export class Tag {
 }
 
 // An association between a tag and a font which applies to all parts of the designspace
-export type StaticTagging = {
+export class StaticTagging {
   // The font family this tagging applies to.
   // This may seem superfluous, but sometimes it's useful to pass a list of tag objects
   // and know which family they belong to.
   font: Font;
   tag: Tag;
   score: number;
+  constructor(font: Font, tag: Tag, score: number) {
+    this.font = font;
+    this.tag = tag;
+    this.score = score;
+  }
+  toCSV(): string {
+    return `${this.font.name},,${this.tag.name},${this.score}\n`;
+  }
 };
+
 // A tagging which has different scores for different locations in the designspace
 export class VariableTagging {
   font: Font; // Optional, can be undefined if not applicable
@@ -140,6 +149,15 @@ export class VariableTagging {
     // Return the average score for simplicity
     const totalScore = this.scores.reduce((sum, s) => sum + s.score, 0);
     return totalScore / this.scores.length;
+  }
+
+  toCSV(): string {
+    let csv = "";
+    for (let scoreEntry of this.scores) {
+      let gfStyleLocation = Object.keys(scoreEntry.location).join(",") + "@" + Object.values(scoreEntry.location).join(",");
+      csv += `${this.font.name},"${gfStyleLocation}",${this.tag.name},${scoreEntry.score}\n`;
+    }
+    return csv;
   }
 }
 export type Tagging = StaticTagging | VariableTagging;
@@ -242,6 +260,7 @@ export class GF {
   tags: { [key: string]: Tag }; // Object to hold tag definitions
   lintRules: LintRule[]; // Array to hold lint rules
   linter: any; // Linter instance
+  commit: string; // Git commit hash or branch name in google/fonts for tag data
 
   constructor() {
     this.familyData = {};
@@ -250,6 +269,7 @@ export class GF {
     this.lintRules = [];
     this.linter = linter;
     this.loadedFamilies = [];
+    this.commit = "refs/heads/main"
   }
   async getFamilyData() {
     let data = await loadText("family_data.json");
@@ -402,12 +422,24 @@ export class GF {
           // console.warn("Family not found (loading tags):", familyName);
           continue;
         }
-        family.taggings.push({
-          font: family,
-          tag: this.tags[tagName],
-          score: score,
-        });
+        family.taggings.push(new StaticTagging(family, this.tags[tagName], score));
       }
     });
+  }
+
+  exportTaggings() {
+    let csv = "";
+    for (let family of this.families.sort((a, b) => a.name.localeCompare(b.name))) {
+      for (let tagging of family.taggings.sort((a, b) => a.tag.name.localeCompare(b.tag.name))) {
+        csv += tagging.toCSV();
+      }
+    }
+    // Yeah, I guess this is neater than fiddling with octokit
+    navigator.clipboard.writeText(csv);
+    if (this.commit !== "refs/heads/main") {
+          window.open(`https://github.com/google/fonts/edit/${this.commit}/tags/all/families.csv`);
+        } else {
+          window.open("https://github.com/google/fonts/edit/main/tags/all/families.csv")
+        }
   }
 }
