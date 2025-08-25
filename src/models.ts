@@ -260,6 +260,7 @@ export class GF {
   tags: { [key: string]: Tag }; // Object to hold tag definitions
   lintRules: LintRule[]; // Array to hold lint rules
   linter: any; // Linter instance
+  commit: string; // Git commit hash or branch name in google/fonts for tag data
 
   constructor() {
     this.familyData = {};
@@ -268,6 +269,7 @@ export class GF {
     this.lintRules = [];
     this.linter = linter;
     this.loadedFamilies = [];
+    this.commit = "refs/heads/main"
   }
   async getFamilyData() {
     let data = await loadText("family_data.json");
@@ -425,13 +427,19 @@ export class GF {
     });
   }
 
-  exportTaggings(): string {
+  exportTaggings() {
     let csv = "";
     for (let family of this.families.sort((a, b) => a.name.localeCompare(b.name))) {
       for (let tagging of family.taggings.sort((a, b) => a.tag.name.localeCompare(b.tag.name))) {
         csv += tagging.toCSV();
       }
     }
-    return csv
+    // Yeah, I guess this is neater than fiddling with octokit
+    navigator.clipboard.writeText(csv);
+    if (this.commit !== "refs/heads/main") {
+          window.open(`https://github.com/google/fonts/edit/${this.commit}/tags/all/families.csv`);
+        } else {
+          window.open("https://github.com/google/fonts/edit/main/tags/all/families.csv")
+        }
   }
 }

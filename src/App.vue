@@ -135,6 +135,7 @@ onBeforeMount(async () => {
       <button @click="addFontPanel('Maven Pro')">Tags in font</button>
       <button @click="addCategoriesPanel(['/Expressive/Loud'])">Tags in category</button>
       <button @click="addTodoPanel()">Todo List</button>
+      <button @click="gf?.exportTaggings()">Export Taggings</button>
       <!-- <add-tags @tags-added="performAddTags" :gf="gf"></add-tags> -->
       <div style="display: flex; flex-direction: row; width: 100vw; min-height: 100vh;">
         <div v-for="(panel, idx) in panels" :key="idx"
